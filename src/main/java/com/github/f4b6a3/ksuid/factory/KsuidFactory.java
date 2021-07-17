@@ -24,10 +24,11 @@
 
 package com.github.f4b6a3.ksuid.factory;
 
+import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Random;
 
 import com.github.f4b6a3.ksuid.Ksuid;
-import com.github.f4b6a3.ksuid.random.DefaultRandomGenerator;
 import com.github.f4b6a3.ksuid.random.RandomGenerator;
 
 /**
@@ -45,8 +46,29 @@ public final class KsuidFactory {
 	private static final int SHIFT_US = Integer.SIZE - BITS_US; // 12
 	private static final int SHIFT_NS = Integer.SIZE - BITS_NS; // 02
 
+	/**
+	 * Use the default {@link java.security.SecureRandom}.
+	 */
 	public KsuidFactory() {
-		this.randomGenerator = new DefaultRandomGenerator();
+		this(new SecureRandom()::nextBytes);
+	}
+
+	/**
+	 * Use a random generator that inherits from {@link Random}.
+	 * 
+	 * @param random a {@link Random} instance
+	 */
+	public KsuidFactory(Random random) {
+		this.randomGenerator = random::nextBytes;
+	}
+
+	/**
+	 * Use a random generator that inherits from {@link RandomGenerator}.
+	 * 
+	 * @param randomGenerator a {@link RandomGenerator} instance
+	 */
+	public KsuidFactory(RandomGenerator randomGenerator) {
+		this.randomGenerator = randomGenerator;
 	}
 
 	/**
@@ -170,19 +192,6 @@ public final class KsuidFactory {
 		payload[3] = (byte) ((subsecs >>> 0x20) & 0xffL);
 
 		return new Ksuid(seconds, payload);
-	}
-
-	/**
-	 * Replace the default random generator with another.
-	 * 
-	 * The default random generator uses {@link java.security.SecureRandom}.
-	 * 
-	 * @param randomGenerator a random generator
-	 * @return {@link KsuidFactory}
-	 */
-	public synchronized KsuidFactory withRandomGenerator(RandomGenerator randomGenerator) {
-		this.randomGenerator = randomGenerator;
-		return this;
 	}
 
 	/**

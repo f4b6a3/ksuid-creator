@@ -136,8 +136,7 @@ public class KsuidFactoryTest {
 
 		// Instantiate and start many threads
 		for (int i = 0; i < THREAD_TOTAL; i++) {
-			Random random = new Random();
-			KsuidFactory factory = KsuidCreator.getKsuidFactory().withRandomGenerator(random::nextBytes);
+			KsuidFactory factory = new KsuidFactory(new Random());
 			threads[i] = new TestThread(factory, DEFAULT_LOOP_MAX);
 			threads[i].start();
 		}

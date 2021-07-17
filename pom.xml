@@ -8,7 +8,7 @@
 
 	<name>ksuid-creator</name>
 	<url>http://github.com/f4b6a3/ksuid-creator</url>
-	<description>A Java library for generating KSUID (K-Sortable Unique Identifier)</description>
+	<description>A Java library for generating KSUIDs (K-Sortable Unique Identifier)</description>
 
 
 	<licenses>
@@ -71,6 +71,13 @@
 							<Automatic-Module-Name>${module.name}</Automatic-Module-Name>
 						</manifestEntries>
 					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
 				</configuration>
 			</plugin>
 			<plugin>

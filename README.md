@@ -1,7 +1,7 @@
 
 # KSUID Creator
 
-A Java library for generating [KSUID](https://segment.com/blog/a-brief-history-of-the-uuid) (K-Sortable Unique Identifier).
+A Java library for generating [KSUIDs](https://segment.com/blog/a-brief-history-of-the-uuid) (K-Sortable Unique Identifier).
 
 * Sorted by generation time;
 * Can be stored as a string of 27 chars;
@@ -35,7 +35,7 @@ Add these lines to your `pom.xml`.
 <dependency>
   <groupId>com.github.f4b6a3</groupId>
   <artifactId>ksuid-creator</artifactId>
-  <version>1.0.1</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -166,26 +166,22 @@ byte[] payload = ksuid.getPayload(); // 16 bytes (128 bits)
 byte[] payload = Ksuid.getPayload("0123456789ABCDEFGHJKMNPQRST"); // 16 bytes (128 bits)
 ```
 
-Use a `KsuidFactory` instance with `java.util.Random` to generate KSUIDs:
+Use a `KsuidFactory` with `java.util.Random`:
 
 ```java
-Random random = new Random();
-KsuidFactory factory = KsuidCreator.getKsuidFactory().withRandomGenerator(random::nextBytes);
-
+// use a `Random` instance
+KsuidFactory factory = new KsuidFactory(new Random());
 Ksuid ksuid = factory.create();
 ```
 
-Use a `KsuidFactory` instance with any random generator you like(*) to generate KSUIDs:
+Use a `KsuidFactory` with a random generator of your choice:
 
 ```java
+// use a method of any RNG with this signature: `void nextBytes(byte[])`
 import com.github.niceguy.random.AwesomeRandom; // a hypothetical RNG
-AwesomeRandom awesomeRandom = new AwesomeRandom();
-KsuidFactory factory = KsuidCreator.getKsuidFactory().withRandomGenerator(awesomeRandom::nextBytes);
-
+KsuidFactory factory = new KsuidFactory(new AwesomeRandom()::nextBytes);
 Ksuid ksuid = factory.create();
 ```
-
-(*) as long as it provides a void method like `nextBytes(byte[])`.
 
 Benchmark
 ------------------------------------------------------

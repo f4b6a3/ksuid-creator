@@ -28,10 +28,12 @@ import com.github.f4b6a3.ksuid.factory.KsuidFactory;
 
 /**
  * A class for generating KSUID.
+ * 
+ * It uses a static {@link KsuidFactory}.
  */
 public final class KsuidCreator {
 
-	private static final KsuidFactory KSUID_FACTORY = getKsuidFactory();
+	private static final KsuidFactory KSUID_FACTORY = new KsuidFactory();
 
 	private KsuidCreator() {
 	}
@@ -119,14 +121,5 @@ public final class KsuidCreator {
 	 */
 	public static Ksuid getKsuidNs(final long seconds, final int nanoseconds) {
 		return KSUID_FACTORY.createNs(seconds, nanoseconds);
-	}
-
-	/**
-	 * Create an instance of the KSUID factory.
-	 * 
-	 * @return a KSUID factory
-	 */
-	public static KsuidFactory getKsuidFactory() {
-		return new KsuidFactory();
 	}
 }
