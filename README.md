@@ -1,7 +1,7 @@
 
 # KSUID Creator
 
-A Java library for generating [K-Sortable Unique IDentifier](https://segment.com/blog/a-brief-history-of-the-uuid).
+A Java library for generating [KSUID](https://segment.com/blog/a-brief-history-of-the-uuid) (K-Sortable Unique Identifier).
 
 * Sorted by generation time;
 * Can be stored as a string of 27 chars;
@@ -35,11 +35,13 @@ Add these lines to your `pom.xml`.
 <dependency>
   <groupId>com.github.f4b6a3</groupId>
   <artifactId>ksuid-creator</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
 See more options in [maven.org](https://search.maven.org/artifact/com.github.f4b6a3/ksuid-creator).
+
+Module name: `com.github.f4b6a3.ksuid`.
 
 ### KSUID
 
