@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.2] - 2021-07-18
+
+Fix for Sonatype Lift analysis report
+
+### Fixed
+
+- Fixed `int` to `long` conversion in method that use nanoseconds.
+
 ## [1.1.1] - 2021-07-18
 
 Fix for Sonatype Lift analysis report
@@ -41,8 +49,9 @@ Project created as an alternative Java implementation of [K-Sortable Unique IDen
 - Added `DefaultRandomGenerator`
 - Added test cases
 
-[unreleased]: https://github.com/f4b6a3/ulid-creator/compare/ulid-creator-1.1.1...HEAD
-[1.1.1]: https://github.com/f4b6a3/ulid-creator/compare/ulid-creator-1.1.0...ulid-creator-1.1.1
-[1.1.0]: https://github.com/f4b6a3/ulid-creator/compare/ulid-creator-1.0.1...ulid-creator-1.1.0
-[1.0.1]: https://github.com/f4b6a3/ulid-creator/compare/ulid-creator-1.0.0...ulid-creator-1.0.1
+[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.1.2...HEAD
+[1.1.2]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.1.1...ksuid-creator-1.1.2
+[1.1.1]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.1.0...ksuid-creator-1.1.1
+[1.1.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.0.1...ksuid-creator-1.1.0
+[1.0.1]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.0.0...ksuid-creator-1.0.1
 [1.0.0]: https://github.com/f4b6a3/ksuid-creator/releases/tag/ksuid-creator-1.0.0

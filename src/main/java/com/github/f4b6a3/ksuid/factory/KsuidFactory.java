@@ -158,9 +158,9 @@ public final class KsuidFactory {
 
 		// insert microseconds into payload
 		final int subsecs = (microseconds << 4) | (payload[2] & 0b00001111);
-		payload[0] = (byte) ((subsecs >>> 0x10) & 0xffL);
-		payload[1] = (byte) ((subsecs >>> 0x08) & 0xffL);
-		payload[2] = (byte) ((subsecs >>> 0x00) & 0xffL);
+		payload[0] = (byte) ((subsecs >>> 0x10) & 0xff);
+		payload[1] = (byte) ((subsecs >>> 0x08) & 0xff);
+		payload[2] = (byte) ((subsecs >>> 0x00) & 0xff);
 
 		return new Ksuid(seconds, payload);
 	}
@@ -177,11 +177,11 @@ public final class KsuidFactory {
 		final byte[] payload = getRandomPayload();
 
 		// insert nanoseconds into payload
-		final long subsecs = (nanoseconds << 2) | (payload[3] & 0b00000011);
-		payload[0] = (byte) ((subsecs >>> 0x18) & 0xffL);
-		payload[1] = (byte) ((subsecs >>> 0x10) & 0xffL);
-		payload[2] = (byte) ((subsecs >>> 0x08) & 0xffL);
-		payload[3] = (byte) ((subsecs >>> 0x00) & 0xffL);
+		final int subsecs = (nanoseconds << 2) | (payload[3] & 0b00000011);
+		payload[0] = (byte) ((subsecs >>> 0x18) & 0xff);
+		payload[1] = (byte) ((subsecs >>> 0x10) & 0xff);
+		payload[2] = (byte) ((subsecs >>> 0x08) & 0xff);
+		payload[3] = (byte) ((subsecs >>> 0x00) & 0xff);
 
 		return new Ksuid(seconds, payload);
 	}
