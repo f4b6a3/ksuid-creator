@@ -32,19 +32,11 @@ import com.github.f4b6a3.ksuid.Ksuid;
 import com.github.f4b6a3.ksuid.random.RandomGenerator;
 
 /**
- * An factory for generating KSUID.
+ * A factory for generating KSUIDs.
  */
 public final class KsuidFactory {
 
 	private RandomGenerator randomGenerator;
-
-	private static final int BITS_MS = 10;
-	private static final int BITS_US = 20;
-	private static final int BITS_NS = 30;
-
-	private static final int SHIFT_MS = Integer.SIZE - BITS_MS; // 22
-	private static final int SHIFT_US = Integer.SIZE - BITS_US; // 12
-	private static final int SHIFT_NS = Integer.SIZE - BITS_NS; // 02
 
 	/**
 	 * Use the default {@link java.security.SecureRandom}.
@@ -146,9 +138,9 @@ public final class KsuidFactory {
 		final byte[] payload = getRandomPayload();
 
 		// insert milliseconds into payload
-		final int subsecs = (milliseconds << SHIFT_MS) | (payload[1] & 0b00111111);
-		payload[0] = (byte) ((subsecs >>> 0x38) & 0xffL);
-		payload[1] = (byte) ((subsecs >>> 0x30) & 0xffL);
+		final int subsecs = (milliseconds << 6) | (payload[1] & 0b00111111);
+		payload[0] = (byte) ((subsecs >>> 0x08) & 0xff);
+		payload[1] = (byte) ((subsecs >>> 0x00) & 0xff);
 
 		return new Ksuid(seconds, payload);
 	}
@@ -165,10 +157,10 @@ public final class KsuidFactory {
 		final byte[] payload = getRandomPayload();
 
 		// insert microseconds into payload
-		final int subsecs = (microseconds << SHIFT_US) | (payload[2] & 0b00001111);
-		payload[0] = (byte) ((subsecs >>> 0x38) & 0xffL);
-		payload[1] = (byte) ((subsecs >>> 0x30) & 0xffL);
-		payload[2] = (byte) ((subsecs >>> 0x28) & 0xffL);
+		final int subsecs = (microseconds << 4) | (payload[2] & 0b00001111);
+		payload[0] = (byte) ((subsecs >>> 0x10) & 0xffL);
+		payload[1] = (byte) ((subsecs >>> 0x08) & 0xffL);
+		payload[2] = (byte) ((subsecs >>> 0x00) & 0xffL);
 
 		return new Ksuid(seconds, payload);
 	}
@@ -185,11 +177,11 @@ public final class KsuidFactory {
 		final byte[] payload = getRandomPayload();
 
 		// insert nanoseconds into payload
-		final int subsecs = (nanoseconds << SHIFT_NS) | (payload[3] & 0b00000011);
-		payload[0] = (byte) ((subsecs >>> 0x38) & 0xffL);
-		payload[1] = (byte) ((subsecs >>> 0x30) & 0xffL);
-		payload[2] = (byte) ((subsecs >>> 0x28) & 0xffL);
-		payload[3] = (byte) ((subsecs >>> 0x20) & 0xffL);
+		final long subsecs = (nanoseconds << 2) | (payload[3] & 0b00000011);
+		payload[0] = (byte) ((subsecs >>> 0x18) & 0xffL);
+		payload[1] = (byte) ((subsecs >>> 0x10) & 0xffL);
+		payload[2] = (byte) ((subsecs >>> 0x08) & 0xffL);
+		payload[3] = (byte) ((subsecs >>> 0x00) & 0xffL);
 
 		return new Ksuid(seconds, payload);
 	}

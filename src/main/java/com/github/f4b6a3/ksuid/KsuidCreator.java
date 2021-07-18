@@ -27,7 +27,7 @@ package com.github.f4b6a3.ksuid;
 import com.github.f4b6a3.ksuid.factory.KsuidFactory;
 
 /**
- * A class for generating KSUID.
+ * A class for generating KSUIDs.
  * 
  * It uses a static {@link KsuidFactory}.
  */
