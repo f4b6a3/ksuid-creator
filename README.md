@@ -174,42 +174,31 @@ KsuidFactory factory = new KsuidFactory(new Random());
 Ksuid ksuid = factory.create();
 ```
 
-Use a `KsuidFactory` with a random generator of your choice:
-
-```java
-// use a method of any RNG with this signature: `void nextBytes(byte[])`
-import com.github.niceguy.random.AwesomeRandom; // a hypothetical RNG
-KsuidFactory factory = new KsuidFactory(new AwesomeRandom()::nextBytes);
-Ksuid ksuid = factory.create();
-```
-
 Benchmark
 ------------------------------------------------------
 
 This section shows benchmarks comparing `KsuidCreator` to `java.util.UUID`.
 
 ```
-==============================================================================
-THROUGHPUT (operations/msec)            Mode  Cnt     Score     Error   Units
-==============================================================================
-Throughput.UUID_randomUUID             thrpt    5  2050,995 ±  21,636  ops/ms
-Throughput.UUID_randomUUID_toString    thrpt    5  1178,970 ±  24,739  ops/ms
-------------------------------------------------------------------------------
-Throughput.KsuidCreator_Ksuid          thrpt    5  1948,716 ±  34,251  ops/ms
-Throughput.KsuidCreator_Ksuid_toString thrpt    5  1025,416 ±  41,976  ops/ms
-==============================================================================
-Total time: 00:05:20
-==============================================================================
+--------------------------------------------------------------------------------
+THROUGHPUT (operations/msec)            Mode  Cnt     Score    Error   Units
+--------------------------------------------------------------------------------
+UUID_randomUUID                        thrpt    5  2062,642 ± 34,230  ops/ms
+UUID_randomUUID_toString               thrpt    5  1166,183 ± 16,001  ops/ms
+KsuidCreator_getKsuid                  thrpt    5  1950,534 ± 20,005  ops/ms
+KsuidCreator_getKsuid_toString         thrpt    5  1008,351 ±  8,012  ops/ms
+--------------------------------------------------------------------------------
+Total time: 00:05:21
+--------------------------------------------------------------------------------
 ```
-
-The method `KsuidCreator.getKsuid()` is almost as fast as `UUID.randomUUID()`.
 
 System: JVM 8, Ubuntu 20.04, CPU i5-3330, 8G RAM.
 
-See: [uuid-creator-benchmark](https://github.com/fabiolimace/uuid-creator-benchmark)
+To execute the benchmark, run `./benchmark/run.sh`.
 
-Other generators
+Other identifier generators
 -------------------------------------------
-* [UUID Creator](https://github.com/f4b6a3/uuid-creator): for generating UUID
-* [ULID Creator](https://github.com/f4b6a3/ulid-creator): for generating ULID
-* [TSID Creator](https://github.com/f4b6a3/tsid-creator): for generating Time Sortable ID
+* [UUID Creator](https://github.com/f4b6a3/uuid-creator)
+* [ULID Creator](https://github.com/f4b6a3/ulid-creator)
+* [TSID Creator](https://github.com/f4b6a3/tsid-creator)
+

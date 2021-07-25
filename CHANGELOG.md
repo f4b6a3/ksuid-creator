@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## Added
+
+- Add benchmark code to compare KSUID with UUID
+
 ## [1.1.2] - 2021-07-18
 
 Fix for Sonatype Lift analysis report
