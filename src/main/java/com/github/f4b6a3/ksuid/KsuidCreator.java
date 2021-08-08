@@ -24,16 +24,12 @@
 
 package com.github.f4b6a3.ksuid;
 
-import com.github.f4b6a3.ksuid.factory.KsuidFactory;
+import java.time.Instant;
 
 /**
  * A class for generating KSUIDs.
- * 
- * It uses a static {@link KsuidFactory}.
  */
 public final class KsuidCreator {
-
-	private static final KsuidFactory KSUID_FACTORY = new KsuidFactory();
 
 	private KsuidCreator() {
 	}
@@ -44,7 +40,7 @@ public final class KsuidCreator {
 	 * @return a KSUID
 	 */
 	public static Ksuid getKsuid() {
-		return KSUID_FACTORY.create();
+		return FactoryHolder.INSTANCE.create();
 	}
 
 	/**
@@ -53,73 +49,90 @@ public final class KsuidCreator {
 	 * @return a KSUID
 	 */
 	public static Ksuid getKsuidMs() {
-		return KSUID_FACTORY.createMs();
+		return MsFactoryHolder.INSTANCE.create();
 	}
 
 	/**
-	 * Create a KSUID with microsecond precision.
-	 * 
-	 * Check if the target runtime provides microsecond precision:
-	 * {@code System.out.println(Instant.now().getNano() / 1000);}
+	 * Create a KSUID with microsecond precision (JDK 9+).
 	 * 
 	 * @return a KSUID
 	 */
 	public static Ksuid getKsuidUs() {
-		return KSUID_FACTORY.createUs();
+		return UsFactoryHolder.INSTANCE.create();
 	}
 
 	/**
-	 * Create a KSUID with nanosecond precision.
+	 * Create a KSUID with nanosecond precision (JDK 9+).
 	 * 
 	 * Check if the target runtime provides nanosecond precision:
 	 * {@code System.out.println(Instant.now().getNano());}
 	 * 
+	 * Read: https://stackoverflow.com/questions/1712205
+	 * 
 	 * @return a KSUID
 	 */
 	public static Ksuid getKsuidNs() {
-		return KSUID_FACTORY.createNs();
+		return NsFactoryHolder.INSTANCE.create();
 	}
 
 	/**
 	 * Create a KSUID.
 	 * 
-	 * @param seconds the Unix time in seconds
+	 * @param instant an instant
 	 * @return a KSUID
 	 */
-	public static Ksuid getKsuid(final long seconds) {
-		return KSUID_FACTORY.create(seconds);
+	public static Ksuid getKsuid(Instant instant) {
+		return FactoryHolder.INSTANCE.create(instant);
 	}
 
 	/**
 	 * Create a KSUID with millisecond precision.
 	 * 
-	 * @param seconds      the Unix time in seconds
-	 * @param milliseconds the milliseconds
+	 * @param instant an instant
 	 * @return a KSUID
 	 */
-	public static Ksuid getKsuidMs(final long seconds, final int milliseconds) {
-		return KSUID_FACTORY.createMs(seconds, milliseconds);
+	public static Ksuid getKsuidMs(Instant instant) {
+		return MsFactoryHolder.INSTANCE.create(instant);
 	}
 
 	/**
-	 * Create a KSUID with microsecond precision.
+	 * Create a KSUID with microsecond precision (JDK 9+).
 	 * 
-	 * @param seconds      the Unix time in seconds
-	 * @param microseconds the microseconds
+	 * @param instant an instant
 	 * @return a KSUID
 	 */
-	public static Ksuid getKsuidUs(final long seconds, final int microseconds) {
-		return KSUID_FACTORY.createUs(seconds, microseconds);
+	public static Ksuid getKsuidUs(Instant instant) {
+		return UsFactoryHolder.INSTANCE.create(instant);
 	}
 
 	/**
-	 * Create a KSUID with nanosecond precision.
+	 * Create a KSUID with nanosecond precision (JDK 9+).
 	 * 
-	 * @param seconds     the Unix time in seconds
-	 * @param nanoseconds the nanoseconds
+	 * Check if the target runtime provides nanosecond precision:
+	 * {@code System.out.println(Instant.now().getNano());}
+	 * 
+	 * Read: https://stackoverflow.com/questions/1712205
+	 * 
+	 * @param instant an instant
 	 * @return a KSUID
 	 */
-	public static Ksuid getKsuidNs(final long seconds, final int nanoseconds) {
-		return KSUID_FACTORY.createNs(seconds, nanoseconds);
+	public static Ksuid getKsuidNs(Instant instant) {
+		return NsFactoryHolder.INSTANCE.create(instant);
+	}
+
+	private static class FactoryHolder {
+		static final KsuidFactory INSTANCE = KsuidFactory.newInstance();
+	}
+
+	private static class MsFactoryHolder {
+		static final KsuidFactory INSTANCE = KsuidFactory.newMsInstance();
+	}
+
+	private static class UsFactoryHolder {
+		static final KsuidFactory INSTANCE = KsuidFactory.newUsInstance();
+	}
+
+	private static class NsFactoryHolder {
+		static final KsuidFactory INSTANCE = KsuidFactory.newNsInstance();
 	}
 }

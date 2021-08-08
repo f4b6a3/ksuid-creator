@@ -4,9 +4,44 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## Added
+Nothing unreleaded.
 
-- Add benchmark code to compare KSUID with UUID
+## [2.0.0] - 2021-08-08
+
+Now you call `KsuidFactory.newInstance()` and it's variants to get a new `KsuidFactory`.
+
+### Added
+
+- Added `KsuidCreator.getKsuid(Instant)`
+- Added `KsuidCreator.getMsKsuid(Instant)`
+- Added `KsuidCreator.getUsKsuid(Instant)`
+- Added `KsuidCreator.getNsKsuid(Instant)`
+- Added `KsuidFactory.create(Instant)`
+- Added `KsuidFactory.newInstance()`
+- Added `KsuidFactory.newInstance(Random)`
+- Added `KsuidFactory.newInstance(Supplier<byte[]>)`
+- Added `KsuidFactory.newMsInstance()`
+- Added `KsuidFactory.newMsInstance(Random)`
+- Added `KsuidFactory.newMsInstance(Supplier<byte[]>)`
+- Added `KsuidFactory.newUsInstance()`
+- Added `KsuidFactory.newUsInstance(Random)`
+- Added `KsuidFactory.newUsInstance(Supplier<byte[]>)`
+- Added benchmark code to compare KSUID with UUID
+
+### Removed
+
+- Removed `KsuidCreator.getKsuid(long)`
+- Removed `KsuidCreator.getMsKsuid(long, int)`
+- Removed `KsuidCreator.getUsKsuid(long, int)`
+- Removed `KsuidCreator.getNsKsuid(long, int)`
+- Removed `KsuidFactory.createMs()`
+- Removed `KsuidFactory.createUs()`
+- Removed `KsuidFactory.createNs()`
+- Removed `KsuidFactory.create(long)`
+- Removed `KsuidFactory.createMs(long, int)`
+- Removed `KsuidFactory.createUs(long, int)`
+- Removed `KsuidFactory.createNs(long, int)`
+- Removed `RandomGenerator` interface
 
 ## [1.1.2] - 2021-07-18
 
@@ -53,7 +88,8 @@ Project created as an alternative Java implementation of [K-Sortable Unique IDen
 - Added `DefaultRandomGenerator`
 - Added test cases
 
-[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.1.2...HEAD
+[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.0.0...HEAD
+[2.0.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.1.2...ksuid-creator-2.0.0
 [1.1.2]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.1.1...ksuid-creator-1.1.2
 [1.1.1]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.1.0...ksuid-creator-1.1.1
 [1.1.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.0.1...ksuid-creator-1.1.0

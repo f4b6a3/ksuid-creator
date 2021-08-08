@@ -200,7 +200,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	/**
 	 * Return the creation time.
 	 * 
-	 * The number returned is equivalent to the count of seconds since 1970-01-01
+	 * The number returned is equivalent to the number of seconds since 1970-01-01
 	 * (Unix epoch).
 	 * 
 	 * @return a number of seconds

@@ -1,9 +1,9 @@
 package com.github.f4b6a3.ksuid;
 
+import java.time.Instant;
 import java.util.HashSet;
 
 import com.github.f4b6a3.ksuid.Ksuid;
-import com.github.f4b6a3.ksuid.factory.KsuidFactory;
 
 /**
  * 
@@ -26,7 +26,7 @@ public class UniquenessTest {
 	// KSUID factory
 	private KsuidFactory factory;
 
-	private long time = System.currentTimeMillis() / 1000; // fixed time in seconds
+	private Instant time = Instant.now();
 
 	/**
 	 * Initialize the test.
@@ -118,7 +118,7 @@ public class UniquenessTest {
 	}
 
 	public static void execute(boolean verbose, int threadCount, int requestCount) {
-		KsuidFactory factory = new KsuidFactory();
+		KsuidFactory factory = KsuidFactory.newInstance();
 		UniquenessTest test = new UniquenessTest(threadCount, requestCount, factory, verbose);
 		test.start();
 	}

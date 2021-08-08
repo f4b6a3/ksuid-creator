@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import com.github.f4b6a3.ksuid.Ksuid;
 import com.github.f4b6a3.ksuid.KsuidCreator;
-import com.github.f4b6a3.ksuid.factory.KsuidFactory;
+import com.github.f4b6a3.ksuid.KsuidFactory;
 
 import static org.junit.Assert.*;
 
@@ -136,7 +136,7 @@ public class KsuidFactoryTest {
 
 		// Instantiate and start many threads
 		for (int i = 0; i < THREAD_TOTAL; i++) {
-			KsuidFactory factory = new KsuidFactory(new Random());
+			KsuidFactory factory = KsuidFactory.newInstance(new Random());
 			threads[i] = new TestThread(factory, DEFAULT_LOOP_MAX);
 			threads[i].start();
 		}
@@ -154,29 +154,29 @@ public class KsuidFactoryTest {
 	@Test
 	public void testGetKsuidInstant() {
 		for (int i = 0; i < 100; i++) {
-			long time = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
-			Ksuid ksuid = KsuidCreator.getKsuid(time);
-			assertEquals(Instant.ofEpochSecond(time), ksuid.getInstant());
+			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
+			Ksuid ksuid = KsuidCreator.getKsuid(Instant.ofEpochSecond(seconds));
+			assertEquals(Instant.ofEpochSecond(seconds), ksuid.getInstant());
 		}
 	}
 
 	@Test
 	public void testGetKsuidTime() {
 		for (int i = 0; i < 100; i++) {
-			long time = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
-			Ksuid ksuid = KsuidCreator.getKsuid(time);
-			assertEquals(time, ksuid.getTime());
+			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
+			Ksuid ksuid = KsuidCreator.getKsuid(Instant.ofEpochSecond(seconds));
+			assertEquals(seconds, ksuid.getTime());
 		}
 	}
 
 	@Test
 	public void testGetKsuidTimeMs() {
 		for (int i = 0; i < 100; i++) {
-			long time = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
+			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
 			int ms = (RANDOM.nextInt() & 0x7fffffff) % 1000;
 
-			Ksuid ksuid = KsuidCreator.getKsuidMs(time, ms);
-			assertEquals(time, ksuid.getTime());
+			Ksuid ksuid = KsuidCreator.getKsuidMs(Instant.ofEpochSecond(seconds).plusMillis(ms));
+			assertEquals(seconds, ksuid.getTime());
 
 			byte[] payload = ksuid.getPayload();
 			int payloadMs = (((payload[0] & 0xff) << 8) | (payload[1] & 0xff)) >>> 6;
@@ -187,11 +187,11 @@ public class KsuidFactoryTest {
 	@Test
 	public void testGetKsuidTimeUs() {
 		for (int i = 0; i < 100; i++) {
-			long time = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
+			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
 			int us = (RANDOM.nextInt() & 0x7fffffff) % 1_000_000;
 
-			Ksuid ksuid = KsuidCreator.getKsuidUs(time, us);
-			assertEquals(time, ksuid.getTime());
+			Ksuid ksuid = KsuidCreator.getKsuidUs(Instant.ofEpochSecond(seconds).plusNanos(us * 1000));
+			assertEquals(seconds, ksuid.getTime());
 
 			byte[] payload = ksuid.getPayload();
 			int payloadUs = (((payload[0] & 0xff) << 16) | ((payload[1] & 0xff) << 8) | (payload[2] & 0xff)) >>> 4;
@@ -202,11 +202,11 @@ public class KsuidFactoryTest {
 	@Test
 	public void testGetKsuidTimeNs() {
 		for (int i = 0; i < 100; i++) {
-			long time = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
+			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
 			int ns = (RANDOM.nextInt() & 0x7fffffff) % 1_000_000_000;
 
-			Ksuid ksuid = KsuidCreator.getKsuidNs(time, ns);
-			assertEquals(time, ksuid.getTime());
+			Ksuid ksuid = KsuidCreator.getKsuidNs(Instant.ofEpochSecond(seconds).plusNanos(ns));
+			assertEquals(seconds, ksuid.getTime());
 
 			byte[] payload = ksuid.getPayload();
 			int payloadNs = (((payload[0] & 0xff) << 24) | ((payload[1] & 0xff) << 16) | ((payload[2] & 0xff) << 8)
@@ -218,11 +218,11 @@ public class KsuidFactoryTest {
 	protected static class TestThread extends Thread {
 
 		public static Set<Ksuid> hashSet = new HashSet<>();
-		private KsuidFactory creator;
+		private KsuidFactory factory;
 		private int loopLimit;
 
-		public TestThread(KsuidFactory creator, int loopLimit) {
-			this.creator = creator;
+		public TestThread(KsuidFactory factory, int loopLimit) {
+			this.factory = factory;
 			this.loopLimit = loopLimit;
 		}
 
@@ -232,10 +232,10 @@ public class KsuidFactoryTest {
 
 		@Override
 		public void run() {
-			long time = System.currentTimeMillis() / 1000;
+			Instant time = Instant.now();
 			for (int i = 0; i < loopLimit; i++) {
 				synchronized (hashSet) {
-					hashSet.add(creator.create(time));
+					hashSet.add(factory.create(time));
 				}
 			}
 		}

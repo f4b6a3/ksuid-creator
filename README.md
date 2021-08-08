@@ -35,7 +35,7 @@ Add these lines to your `pom.xml`.
 <dependency>
   <groupId>com.github.f4b6a3</groupId>
   <artifactId>ksuid-creator</artifactId>
-  <version>1.1.2</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
@@ -48,13 +48,13 @@ Module name: `com.github.f4b6a3.ksuid`.
 The KSUID is a 160 bit long identifier (20 bytes). Its consists of a 32-bit timestamp and a 128-bit randomly generated payload.
 
 ```java
-// Generate a KSUID
+// Create a KSUID
 Ksuid ksuid = KsuidCreator.getKsuid();
 ```
 
 ```java
-// Generate a KSUID with a specific time
-Ksuid ksuid = KsuidCreator.getKsuid(1234567890);
+// Create a KSUID with a given instant
+Ksuid ksuid = KsuidCreator.getKsuid(Instant.now());
 ```
 
 Sequence of KSUIDs:
@@ -86,33 +86,33 @@ Sequence of KSUIDs:
 Create a KSUID with subsecond precision:
 
 ```java
-// Generate a KSUID with millisecond precision
+// Create a KSUID with millisecond precision
 Ksuid ksuid = KsuidCreator.getKsuidMs();
 ```
 
 ```java
-// Generate a KSUID with microsecond precision
+// Create a KSUID with a given instant and millisecond precision
+Ksuid ksuid = KsuidCreator.getKsuidMs(Instant.now());
+```
+
+```java
+// Create a KSUID with microsecond precision
 Ksuid ksuid = KsuidCreator.getKsuidUs();
 ```
 
 ```java
-// Generate a KSUID with nanosecond precision
+// Create a KSUID with a given instant and microsecond precision
+Ksuid ksuid = KsuidCreator.getKsuidUs(Instant.now());
+```
+
+```java
+// Create a KSUID with nanosecond precision
 Ksuid ksuid = KsuidCreator.getKsuidNs();
 ```
 
 ```java
-// Generate a KSUID with given time and millisecond
-Ksuid ksuid = KsuidCreator.getKsuidMs(1234567890, 999);
-```
-
-```java
-// Generate a KSUID with given time and microsecond
-Ksuid ksuid = KsuidCreator.getKsuidUs(1234567890, 999999);
-```
-
-```java
-// Generate a KSUID with given time and nanosecond
-Ksuid ksuid = KsuidCreator.getKsuidNs(1234567890, 999999999);
+// Create a KSUID with a given instant and nanosecond precision
+Ksuid ksuid = KsuidCreator.getKsuidNs(Instant.now());
 ```
 
 Create a KSUID from a canonical string (27 chars, base-62):
@@ -169,8 +169,17 @@ byte[] payload = Ksuid.getPayload("0123456789ABCDEFGHJKMNPQRST"); // 16 bytes (1
 Use a `KsuidFactory` with `java.util.Random`:
 
 ```java
-// use a `Random` instance
-KsuidFactory factory = new KsuidFactory(new Random());
+// use a `java.util.Random` instance for fast generation
+KsuidFactory factory = KsuidFactory.newInstance(new Random());
+Ksuid ksuid = factory.create();
+```
+
+Use a `KsuidFactory` with a random generator of your choice:
+
+```java
+// use a random supplier that returns an array of 16 bytes
+AwesomeRandom awesomeRandom = new AwesomeRandom(); // a hypothetical RNG
+KsuidFactory factory = KsuidFactory.newInstance(() -> awesomeRandom.nextBytes(Ksuid.PAYLOAD_BYTES));
 Ksuid ksuid = factory.create();
 ```
 
@@ -183,10 +192,10 @@ This section shows benchmarks comparing `KsuidCreator` to `java.util.UUID`.
 --------------------------------------------------------------------------------
 THROUGHPUT (operations/msec)            Mode  Cnt     Score    Error   Units
 --------------------------------------------------------------------------------
-UUID_randomUUID                        thrpt    5  2062,642 ± 34,230  ops/ms
-UUID_randomUUID_toString               thrpt    5  1166,183 ± 16,001  ops/ms
-KsuidCreator_getKsuid                  thrpt    5  1950,534 ± 20,005  ops/ms
-KsuidCreator_getKsuid_toString         thrpt    5  1008,351 ±  8,012  ops/ms
+UUID_randomUUID                        thrpt    5  2035,533 ± 39,739  ops/ms
+UUID_randomUUID_toString               thrpt    5  1177,259 ± 32,038  ops/ms
+KsuidCreator_getKsuid                  thrpt    5  1927,256 ± 33,542  ops/ms
+KsuidCreator_getKsuid_toString         thrpt    5  1012,974 ± 18,003  ops/ms
 --------------------------------------------------------------------------------
 Total time: 00:05:21
 --------------------------------------------------------------------------------
