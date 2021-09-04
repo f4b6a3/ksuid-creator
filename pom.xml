@@ -3,7 +3,7 @@
 
 	<groupId>com.github.f4b6a3</groupId>
 	<artifactId>ksuid-creator</artifactId>
-	<version>2.0.1-SNAPSHOT</version>
+	<version>2.1.0</version>
 	<packaging>jar</packaging>
 
 	<name>ksuid-creator</name>
@@ -45,7 +45,7 @@
 		<url>https://github.com/f4b6a3/ksuid-creator</url>
 		<connection>scm:git:ssh://git@github.com/f4b6a3/ksuid-creator.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/f4b6a3/ksuid-creator.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>ksuid-creator-2.1.0</tag>
 	</scm>
 
 	<distributionManagement>
