@@ -35,13 +35,18 @@ Add these lines to your `pom.xml`.
 <dependency>
   <groupId>com.github.f4b6a3</groupId>
   <artifactId>ksuid-creator</artifactId>
-  <version>2.0.0</version>
+  <version>2.1.0</version>
 </dependency>
 ```
 
 See more options in [maven.org](https://search.maven.org/artifact/com.github.f4b6a3/ksuid-creator).
 
-Module name: `com.github.f4b6a3.ksuid`.
+### Modularity
+
+Module and bundle names are the same as the root package name.
+
+- JPMS module name: `com.github.f4b6a3.ksuid`
+- OSGi symbolic name: `com.github.f4b6a3.ksuid`
 
 ### KSUID
 
