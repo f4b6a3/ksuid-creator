@@ -3,11 +3,11 @@
 
 A Java library for generating [KSUIDs](https://segment.com/blog/a-brief-history-of-the-uuid) (K-Sortable Unique Identifier).
 
-* Sorted by generation time;
-* Can be stored as a string of 27 chars;
-* Can be stored as an array of 20 bytes;
-* String format is encoded to [base-62](https://en.wikipedia.org/wiki/Base62) (0-9A-Za-z);
-* String format is URL safe and has no hyphens.
+*   Sorted by generation time;
+*   Can be stored as a string of 27 chars;
+*   Can be stored as an array of 20 bytes;
+*   String format is encoded to [base-62](https://en.wikipedia.org/wiki/Base62) (0-9A-Za-z);
+*   String format is URL safe and has no hyphens.
 
 Read the [reference implementation](https://github.com/segmentio/ksuid).
 
@@ -45,8 +45,8 @@ See more options in [maven.org](https://search.maven.org/artifact/com.github.f4b
 
 Module and bundle names are the same as the root package name.
 
-- JPMS module name: `com.github.f4b6a3.ksuid`
-- OSGi symbolic name: `com.github.f4b6a3.ksuid`
+*   JPMS module name: `com.github.f4b6a3.ksuid`
+*   OSGi symbolic name: `com.github.f4b6a3.ksuid`
 
 ### KSUID
 
@@ -212,7 +212,7 @@ To execute the benchmark, run `./benchmark/run.sh`.
 
 Other identifier generators
 -------------------------------------------
-* [UUID Creator](https://github.com/f4b6a3/uuid-creator)
-* [ULID Creator](https://github.com/f4b6a3/ulid-creator)
-* [TSID Creator](https://github.com/f4b6a3/tsid-creator)
+*   [UUID Creator](https://github.com/f4b6a3/uuid-creator)
+*   [ULID Creator](https://github.com/f4b6a3/ulid-creator)
+*   [TSID Creator](https://github.com/f4b6a3/tsid-creator)
 
