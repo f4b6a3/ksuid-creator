@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 Nothing unreleaded.
 
+## [2.1.1] - 2021-10-03
+
+Regular maintenance.
+
 ## [2.1.0] - 2021-09-04
 
 Add OSGi entries to Manifest.MF #8
@@ -96,7 +100,8 @@ Project created as an alternative Java implementation of [K-Sortable Unique IDen
 -   Added `DefaultRandomGenerator`
 -   Added test cases
 
-[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.1.0...HEAD
+[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.1.1...HEAD
+[2.1.1]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.1.0...ksuid-creator-2.1.1
 [2.1.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.0.0...ksuid-creator-2.1.0
 [2.0.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.1.2...ksuid-creator-2.0.0
 [1.1.2]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-1.1.1...ksuid-creator-1.1.2

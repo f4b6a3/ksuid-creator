@@ -43,9 +43,9 @@ public class KsuidFactoryTest {
 
 		long endTime = System.currentTimeMillis() / 1000;
 
-		checkNullOrInvalid(list);
-		checkUniqueness(list);
-		checkCreationTime(list, startTime, endTime);
+		assertTrue(checkNullOrInvalid(list));
+		assertTrue(checkUniqueness(list));
+		assertTrue(checkCreationTime(list, startTime, endTime));
 	}
 
 	@Test
@@ -60,9 +60,9 @@ public class KsuidFactoryTest {
 
 		long endTime = System.currentTimeMillis() / 1000;
 
-		checkNullOrInvalid(list);
-		checkUniqueness(list);
-		checkCreationTime(list, startTime, endTime);
+		assertTrue(checkNullOrInvalid(list));
+		assertTrue(checkUniqueness(list));
+		assertTrue(checkCreationTime(list, startTime, endTime));
 	}
 
 	@Test
@@ -77,9 +77,9 @@ public class KsuidFactoryTest {
 
 		long endTime = System.currentTimeMillis() / 1000;
 
-		checkNullOrInvalid(list);
-		checkUniqueness(list);
-		checkCreationTime(list, startTime, endTime);
+		assertTrue(checkNullOrInvalid(list));
+		assertTrue(checkUniqueness(list));
+		assertTrue(checkCreationTime(list, startTime, endTime));
 	}
 
 	@Test
@@ -94,18 +94,19 @@ public class KsuidFactoryTest {
 
 		long endTime = System.currentTimeMillis() / 1000;
 
-		checkNullOrInvalid(list);
-		checkUniqueness(list);
-		checkCreationTime(list, startTime, endTime);
+		assertTrue(checkNullOrInvalid(list));
+		assertTrue(checkUniqueness(list));
+		assertTrue(checkCreationTime(list, startTime, endTime));
 	}
 
-	private void checkNullOrInvalid(Ksuid[] list) {
+	private boolean checkNullOrInvalid(Ksuid[] list) {
 		for (Ksuid ksuid : list) {
 			assertNotNull("KSUID is null", ksuid);
 		}
+		return true; // success
 	}
 
-	private void checkUniqueness(Ksuid[] list) {
+	private boolean checkUniqueness(Ksuid[] list) {
 
 		HashSet<Ksuid> set = new HashSet<>();
 
@@ -114,9 +115,11 @@ public class KsuidFactoryTest {
 		}
 
 		assertEquals("There are duplicated KSUIDs", set.size(), list.length);
+
+		return true; // success
 	}
 
-	private void checkCreationTime(Ksuid[] list, long startTime, long endTime) {
+	private boolean checkCreationTime(Ksuid[] list, long startTime, long endTime) {
 
 		assertTrue("Start time was after end time", startTime <= endTime);
 
@@ -126,6 +129,8 @@ public class KsuidFactoryTest {
 					creationTime >= startTime);
 			assertTrue("Creation time was after end time", creationTime <= endTime);
 		}
+
+		return true; // success
 	}
 
 	@Test

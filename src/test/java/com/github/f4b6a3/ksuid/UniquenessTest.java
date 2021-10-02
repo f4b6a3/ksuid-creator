@@ -94,12 +94,10 @@ public class UniquenessTest {
 				// Request a KSUID
 				Ksuid ksuid = factory.create(time);
 
-				if (verbose) {
-					if (i % (max / 100) == 0) {
-						// Calculate and show progress
-						progress = (int) ((i * 1.0 / max) * 100);
-						System.out.println(String.format("[Thread %06d] %s %s %s%%", id, ksuid, i, (int) progress));
-					}
+				if (verbose && (i % (max / 100) == 0)) {
+					// Calculate and show progress
+					progress = (int) ((i * 1.0 / max) * 100);
+					System.out.println(String.format("[Thread %06d] %s %s %s%%", id, ksuid, i, (int) progress));
 				}
 				synchronized (hashSet) {
 					// Insert the value in cache, if it does not exist in it.
