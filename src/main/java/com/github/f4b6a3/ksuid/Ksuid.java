@@ -75,7 +75,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	}
 
 	protected static final int KSUID_INTS = KSUID_BYTES / Integer.BYTES;
-	protected static final long HALF_LONG_MASK = 0x00000000ffffffffL;
+	protected static final long INTEGER_MASK = 0x00000000ffffffffL;
 
 	/**
 	 * Create a new KSUID.
@@ -272,10 +272,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Arrays.hashCode(bytes);
-		return result;
+		return Arrays.hashCode(this.bytes);
 	}
 
 	@Override
@@ -311,7 +308,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 * @return the KSUID time
 	 */
 	protected static long toKsuidTime(final long unixTime) {
-		return unixTime - EPOCH_OFFSET;
+		return (unixTime - EPOCH_OFFSET) & INTEGER_MASK;
 	}
 
 	/**
@@ -323,7 +320,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 * @return the time in seconds since 1970-01-01
 	 */
 	protected static long toUnixTime(final long ksuidTime) {
-		return ksuidTime + EPOCH_OFFSET;
+		return (ksuidTime & INTEGER_MASK) + EPOCH_OFFSET;
 	}
 
 	/**
@@ -380,7 +377,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 		long remainder = 0;
 
 		for (int i = 0; i < number.length; i++) {
-			temporary = (remainder << 32) | (number[i] & HALF_LONG_MASK);
+			temporary = (remainder << 32) | (number[i] & INTEGER_MASK);
 			quotient[i] = (int) (temporary / divisor);
 			remainder = temporary % divisor;
 		}
@@ -395,7 +392,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 		final int[] product = new int[KSUID_INTS];
 
 		for (int i = KSUID_INTS - 1; i >= 0; i--) {
-			temporary = ((number[i] & HALF_LONG_MASK) * multiplier) + overflow;
+			temporary = ((number[i] & INTEGER_MASK) * multiplier) + overflow;
 			product[i] = (int) temporary;
 			overflow = (temporary >>> 32);
 		}
@@ -407,7 +404,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 		return product;
 	}
 
-	protected static int[] toInts(byte[] bytes) {
+	protected static int[] toInts(final byte[] bytes) {
 
 		int[] ints = new int[KSUID_INTS];
 
@@ -421,7 +418,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 		return ints;
 	}
 
-	protected static byte[] fromInts(int[] ints) {
+	protected static byte[] fromInts(final int[] ints) {
 
 		byte[] bytes = new byte[KSUID_BYTES];
 

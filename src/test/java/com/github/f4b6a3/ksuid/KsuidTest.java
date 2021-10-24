@@ -232,7 +232,7 @@ public class KsuidTest {
 	public void testEquals() {
 		Random random = new Random();
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
 			byte[] bytes = new byte[Ksuid.KSUID_BYTES];
 			random.nextBytes(bytes);
 			Ksuid ksuid1 = Ksuid.from(bytes);
@@ -245,7 +245,7 @@ public class KsuidTest {
 	public void testCompareTo() {
 		Random random = new Random();
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
 			byte[] bytes = new byte[Ksuid.KSUID_BYTES];
 
 			random.nextBytes(bytes);
@@ -264,7 +264,7 @@ public class KsuidTest {
 	}
 
 	@Test
-	public void testMinAndMax() {
+	public void testMinAndMaxKsuidString() {
 
 		byte[] minBytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		byte[] maxBytes = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
@@ -289,10 +289,81 @@ public class KsuidTest {
 	}
 
 	@Test
+	public void testMinAndMaxKsuidInstant() {
+
+		byte[] minBytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		byte[] maxBytes = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+
+		Instant minInstant = Instant.parse("2014-05-13T16:53:20Z"); // 0x00000000 + 1_400_000_000L
+		Instant maxInstant = Instant.parse("2150-06-19T23:21:35Z"); // 0xffffffff + 1_400_000_000L
+
+		Ksuid minKsuid = new Ksuid(minBytes);
+		Ksuid maxKsuid = new Ksuid(maxBytes);
+
+		assertEquals(minInstant, minKsuid.getInstant());
+		assertEquals(maxInstant, maxKsuid.getInstant());
+	}
+
+	@Test
+	public void testGetInstant() {
+
+		Instant instant = Instant.parse("2106-02-07T06:28:16Z"); // 0x00000000
+		byte[] payload = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+
+		long seconds0 = 0x00000000L;
+		Ksuid ksuid0 = new Ksuid(seconds0, payload);
+		assertEquals(instant, ksuid0.getInstant());
+
+		long seconds1 = 0x00000000L - 1; // 2106-02-07T06:28:16Z - 1
+		Ksuid ksuid1 = new Ksuid(seconds1, payload);
+		assertEquals(instant.minusSeconds(1), ksuid1.getInstant());
+
+		long seconds2 = 0x00000000L + 1; // 2106-02-07T06:28:16Z + 1
+		Ksuid ksuid2 = new Ksuid(seconds2, payload);
+		assertEquals(instant.plusSeconds(1), ksuid2.getInstant());
+
+		long seconds3 = 0xffffffffL; // 2106-02-07T06:28:16Z
+		Ksuid ksuid3 = new Ksuid(seconds3, payload);
+		assertEquals(instant.minusSeconds(1), ksuid3.getInstant());
+
+		long seconds4 = 0xffffffffL - 1; // 2106-02-07T06:28:16Z - 1 - 1
+		Ksuid ksuid4 = new Ksuid(seconds4, payload);
+		assertEquals(instant.minusSeconds(2), ksuid4.getInstant());
+
+		long seconds5 = 0xffffffffL + 1; // 2106-02-07T06:28:16Z - 1 + 1
+		Ksuid ksuid5 = new Ksuid(seconds5, payload);
+		assertEquals(instant, ksuid5.getInstant());
+	}
+
+	@Test
+	public void testGetInstantRollover() {
+
+		Instant minInstant = Instant.parse("2014-05-13T16:53:20Z"); // 0x00000000 + 1_400_000_000L
+		Instant maxInstant = Instant.parse("2150-06-19T23:21:35Z"); // 0xffffffff + 1_400_000_000L
+		byte[] payload = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+
+		long seconds0 = Ksuid.EPOCH_OFFSET + 0x00000000L; // 2014-05-13T16:53:20Z
+		Ksuid ksuid0 = new Ksuid(seconds0, payload);
+		assertEquals(minInstant, ksuid0.getInstant());
+
+		long seconds1 = Ksuid.EPOCH_OFFSET + 0xffffffffL; // 2150-06-19T23:21:35Z
+		Ksuid ksuid1 = new Ksuid(seconds1, payload);
+		assertEquals(maxInstant, ksuid1.getInstant());
+
+		long seconds2 = Ksuid.EPOCH_OFFSET + (0xffffffffL + 1); // 2014-05-13T16:53:20Z (ROLLOVER)
+		Ksuid ksuid2 = new Ksuid(seconds2, payload);
+		assertEquals(minInstant, ksuid2.getInstant());
+
+		long seconds3 = Ksuid.EPOCH_OFFSET + (0x00000000L - 1); // 2150-06-19T23:21:35Z (ROLLOVER BACKWARDS)
+		Ksuid ksuid3 = new Ksuid(seconds3, payload);
+		assertEquals(maxInstant, ksuid3.getInstant());
+	}
+
+	@Test
 	public void testRemainder() {
 		Random random = new Random();
 
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
 			byte[] bytes = new byte[20];
 			random.nextBytes(bytes);
 			int divisor = random.nextInt() & 0x7fffffff; // positive divisor
@@ -315,7 +386,7 @@ public class KsuidTest {
 	public void testMultiply() {
 		Random random = new Random();
 
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
 			byte[] bytes = new byte[20];
 			random.nextBytes(bytes);
 			int multiplier = random.nextInt() & 0x7fffffff; // positive
