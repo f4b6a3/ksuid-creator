@@ -1,4 +1,4 @@
-# KSUID Creator
+KSUID Creator
 ======================================================
 
 A Java library for generating [KSUIDs](https://segment.com/blog/a-brief-history-of-the-uuid) (K-Sortable Unique Identifier).
@@ -11,7 +11,7 @@ A Java library for generating [KSUIDs](https://segment.com/blog/a-brief-history-
 
 Read the [reference implementation](https://github.com/segmentio/ksuid).
 
-## How to Use
+How to Use
 ------------------------------------------------------
 
 Create a KSUID:
@@ -188,7 +188,7 @@ KsuidFactory factory = KsuidFactory.newInstance(() -> awesomeRandom.nextBytes(Ks
 Ksuid ksuid = factory.create();
 ```
 
-## Benchmark
+Benchmark
 ------------------------------------------------------
 
 This section shows benchmarks comparing `KsuidCreator` to `java.util.UUID`.
@@ -210,7 +210,7 @@ System: JVM 8, Ubuntu 20.04, CPU i5-3330, 8G RAM.
 
 To execute the benchmark, run `./benchmark/run.sh`.
 
-## Other identifier generators
+Other identifier generators
 ------------------------------------------------------
 *   [UUID Creator](https://github.com/f4b6a3/uuid-creator)
 *   [ULID Creator](https://github.com/f4b6a3/ulid-creator)
