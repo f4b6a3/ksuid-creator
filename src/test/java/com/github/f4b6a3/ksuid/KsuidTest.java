@@ -63,6 +63,51 @@ public class KsuidTest {
 	}
 
 	@Test
+	public void testConstructorBytes() {
+		Random random = new Random();
+		byte[] bytes = new byte[Ksuid.KSUID_BYTES];
+
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+			random.nextBytes(bytes);
+			Ksuid ksuid = new Ksuid(bytes);
+			assertEquals(Arrays.toString(bytes), Arrays.toString(ksuid.toBytes()));
+		}
+	}
+
+	@Test
+	public void testConstructorInts() {
+		Random random = new Random();
+		int[] ints = new int[Ksuid.KSUID_INTS];
+
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+			ints[0] = random.nextInt();
+			ints[1] = random.nextInt();
+			ints[2] = random.nextInt();
+			ints[3] = random.nextInt();
+			ints[4] = random.nextInt();
+			Ksuid ksuid = new Ksuid(ints);
+			assertEquals(Arrays.toString(ints), Arrays.toString(ksuid.toInts()));
+		}
+	}
+
+	@Test
+	public void testConstructorKsuid() {
+
+		Random random = new Random();
+
+		long seconds = 0;
+		byte[] payload = new byte[Ksuid.PAYLOAD_BYTES];
+
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+			seconds = Ksuid.toUnixTime(random.nextLong());
+			random.nextBytes(payload);
+			Ksuid ksuid = new Ksuid(new Ksuid(seconds, payload));
+			assertEquals(seconds, ksuid.getTime());
+			assertEquals(Arrays.toString(payload), Arrays.toString(ksuid.getPayload()));
+		}
+	}
+
+	@Test
 	public void testConstructorTimeAndRandom() {
 
 		Random random = new Random();
@@ -230,10 +275,11 @@ public class KsuidTest {
 
 	@Test
 	public void testEquals() {
+
 		Random random = new Random();
+		byte[] bytes = new byte[Ksuid.KSUID_BYTES];
 
 		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
-			byte[] bytes = new byte[Ksuid.KSUID_BYTES];
 			random.nextBytes(bytes);
 			Ksuid ksuid1 = Ksuid.from(bytes);
 			Ksuid ksuid2 = new Ksuid(ksuid1);
@@ -243,10 +289,11 @@ public class KsuidTest {
 
 	@Test
 	public void testCompareTo() {
+
 		Random random = new Random();
+		byte[] bytes = new byte[Ksuid.KSUID_BYTES];
 
 		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
-			byte[] bytes = new byte[Ksuid.KSUID_BYTES];
 
 			random.nextBytes(bytes);
 			Ksuid ksuid1 = Ksuid.from(bytes);
@@ -372,12 +419,12 @@ public class KsuidTest {
 			BigInteger quotient1 = number1.divide(BigInteger.valueOf(divisor));
 			BigInteger reminder1 = number1.remainder(BigInteger.valueOf(divisor));
 
-			int[] number2 = Ksuid.toInts(bytes);
+			int[] number2 = new Ksuid(bytes).toInts();
 			int[] quotient2 = new int[5];
 			int remainder2 = Ksuid.remainder(number2, divisor, quotient2);
 
-			assertEquals(number1, new BigInteger(1, Ksuid.fromInts(number2)));
-			assertEquals(quotient1, new BigInteger(1, Ksuid.fromInts(quotient2)));
+			assertEquals(number1, new BigInteger(1, new Ksuid(number2).toBytes()));
+			assertEquals(quotient1, new BigInteger(1, new Ksuid(quotient2).toBytes()));
 			assertEquals(reminder1.intValue(), remainder2);
 		}
 	}
@@ -405,11 +452,11 @@ public class KsuidTest {
 			}
 			byte[] productBytes1 = temp1;
 
-			int[] number2 = Ksuid.toInts(bytes);
+			int[] number2 = new Ksuid(bytes).toInts();
 			int[] product2 = Ksuid.multiply(number2, multiplier, addend, false);
-			byte[] productBytes2 = Ksuid.fromInts(product2);
+			byte[] productBytes2 = new Ksuid(product2).toBytes();
 
-			assertEquals(number1, new BigInteger(1, Ksuid.fromInts(number2)));
+			assertEquals(number1, new BigInteger(1, new Ksuid(number2).toBytes()));
 			assertEquals(Arrays.toString(productBytes1), Arrays.toString(productBytes2));
 		}
 	}

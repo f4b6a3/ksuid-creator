@@ -26,7 +26,6 @@ package com.github.f4b6a3.ksuid;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Arrays;
 
 /**
  * This class represents a KSUID.
@@ -45,7 +44,8 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 
 	private static final long serialVersionUID = 3045351825700035803L;
 
-	private final byte[] bytes;
+	private final int seconds;
+	private final byte[] payload;
 
 	public static final int KSUID_CHARS = 27;
 	public static final int KSUID_BYTES = 20;
@@ -83,11 +83,46 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 * @param bytes a byte array
 	 */
 	protected Ksuid(byte[] bytes) {
+
 		if (bytes == null || bytes.length != KSUID_BYTES) {
 			throw new IllegalArgumentException("Invalid byte array length or null"); // null or wrong length!
 		}
-		this.bytes = new byte[KSUID_BYTES];
-		System.arraycopy(bytes, 0, this.bytes, 0, KSUID_BYTES);
+
+		// copy the seconds
+		int secondz = 0;
+		secondz |= (bytes[0x00] & 0xff) << 0x18;
+		secondz |= (bytes[0x01] & 0xff) << 0x10;
+		secondz |= (bytes[0x02] & 0xff) << 0x08;
+		secondz |= (bytes[0x03] & 0xff) << 0x00;
+		this.seconds = secondz;
+
+		// copy the payload
+		this.payload = new byte[PAYLOAD_BYTES];
+		System.arraycopy(bytes, TIME_BYTES, this.payload, 0, PAYLOAD_BYTES);
+	}
+
+	/**
+	 * Create a new KSUID.
+	 * 
+	 * @param bytes an integer array
+	 */
+	protected Ksuid(final int[] ints) {
+
+		if (ints == null || ints.length != KSUID_INTS) {
+			throw new IllegalArgumentException("Invalid integer array length or null"); // null or wrong length!
+		}
+
+		// copy the seconds
+		this.seconds = ints[0];
+
+		// copy the payload
+		this.payload = new byte[PAYLOAD_BYTES];
+		for (int i = 1, j = 0; i < ints.length; i++, j += 4) {
+			this.payload[j + 0] = (byte) ((ints[i] >>> 0x18) & 0xff);
+			this.payload[j + 1] = (byte) ((ints[i] >>> 0x10) & 0xff);
+			this.payload[j + 2] = (byte) ((ints[i] >>> 0x08) & 0xff);
+			this.payload[j + 3] = (byte) ((ints[i] >>> 0x00) & 0xff);
+		}
 	}
 
 	/**
@@ -98,7 +133,13 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 * @param ksuid a KSUID
 	 */
 	public Ksuid(Ksuid ksuid) {
-		this(ksuid.bytes);
+
+		// copy the seconds
+		this.seconds = ksuid.seconds;
+
+		// copy the payload
+		this.payload = new byte[PAYLOAD_BYTES];
+		System.arraycopy(ksuid.payload, 0, this.payload, 0, PAYLOAD_BYTES);
 	}
 
 	/**
@@ -113,18 +154,12 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 			throw new IllegalArgumentException("Invalid payload length or null"); // null or wrong length!
 		}
 
-		// convert the Unix time to KSUID time
-		long ksuidTime = toKsuidTime(seconds);
+		// copy the seconds
+		this.seconds = (int) toKsuidTime(seconds);
 
-		// put the KSUID time into the first 4 bytes
-		this.bytes = new byte[KSUID_BYTES];
-		bytes[0x00] = (byte) (ksuidTime >>> 0x18);
-		bytes[0x01] = (byte) (ksuidTime >>> 0x10);
-		bytes[0x02] = (byte) (ksuidTime >>> 0x08);
-		bytes[0x03] = (byte) (ksuidTime >>> 0x00);
-
-		// put the KSUID payload into the last 10 bytes
-		System.arraycopy(payload, 0, bytes, TIME_BYTES, PAYLOAD_BYTES);
+		// copy the payload
+		this.payload = new byte[PAYLOAD_BYTES];
+		System.arraycopy(payload, 0, this.payload, 0, PAYLOAD_BYTES);
 	}
 
 	/**
@@ -147,18 +182,28 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 * @return a KSUID
 	 */
 	public static Ksuid from(String string) {
-		return new Ksuid(fromBase62(string));
+		return fromBase62(string);
 	}
 
 	/**
 	 * Convert the KSUID into a byte array.
 	 * 
-	 * @return an byte array.
+	 * @return a byte array.
 	 */
 	public byte[] toBytes() {
-		byte[] copy = new byte[KSUID_BYTES];
-		System.arraycopy(bytes, 0, copy, 0, KSUID_BYTES);
-		return copy;
+
+		byte[] bytes = new byte[KSUID_BYTES];
+
+		// copy the seconds
+		bytes[0] = (byte) ((this.seconds >>> 0x18) & 0xff);
+		bytes[1] = (byte) ((this.seconds >>> 0x10) & 0xff);
+		bytes[2] = (byte) ((this.seconds >>> 0x08) & 0xff);
+		bytes[3] = (byte) ((this.seconds >>> 0x00) & 0xff);
+
+		// copy the payload
+		System.arraycopy(this.payload, 0, bytes, TIME_BYTES, PAYLOAD_BYTES);
+
+		return bytes;
 	}
 
 	/**
@@ -171,7 +216,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 */
 	@Override
 	public String toString() {
-		return toBase62(bytes);
+		return toBase62(this);
 	}
 
 	/**
@@ -206,16 +251,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 * @return a number of seconds
 	 */
 	public long getTime() {
-
-		// get the KSUID time from the first 4 bytes
-		long ksuidTime = 0;
-		ksuidTime |= (bytes[0x00] & 0xffL) << 0x18;
-		ksuidTime |= (bytes[0x01] & 0xffL) << 0x10;
-		ksuidTime |= (bytes[0x02] & 0xffL) << 0x08;
-		ksuidTime |= (bytes[0x03] & 0xffL) << 0x00;
-
-		// convert the KSUID time to Unix time
-		return toUnixTime(ksuidTime);
+		return toUnixTime(this.seconds);
 	}
 
 	/**
@@ -239,10 +275,9 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 * @return a byte array
 	 */
 	public byte[] getPayload() {
-		// get the KSUID payload from the last 10 bytes
-		final byte[] payload = new byte[PAYLOAD_BYTES];
-		System.arraycopy(bytes, TIME_BYTES, payload, 0, PAYLOAD_BYTES);
-		return payload;
+		final byte[] copy = new byte[PAYLOAD_BYTES];
+		System.arraycopy(this.payload, 0, copy, 0, PAYLOAD_BYTES);
+		return copy;
 	}
 
 	/**
@@ -272,30 +307,62 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(this.bytes);
+
+		final int prime = 31;
+		int result = 1;
+
+		result = prime * result + seconds;
+
+		for (int i = 0; i < PAYLOAD_BYTES; i++) {
+			result = prime * result + payload[i];
+		}
+
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+
 		Ksuid other = (Ksuid) obj;
-		return Arrays.equals(bytes, other.bytes);
+
+		if (this.seconds != other.seconds)
+			return false;
+
+		for (int i = 0; i < PAYLOAD_BYTES; i++) {
+			if (this.payload[i] != other.payload[i]) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	@Override
 	public int compareTo(Ksuid other) {
-		for (int i = 0; i < KSUID_BYTES; i++) {
-			if ((this.bytes[i] & 0xff) > (other.bytes[i] & 0xff)) {
+
+		// unsigned comparison of seconds
+		if ((this.seconds & INTEGER_MASK) > (other.seconds & INTEGER_MASK)) {
+			return 1;
+		} else if ((this.seconds & INTEGER_MASK) < (other.seconds & INTEGER_MASK)) {
+			return -1;
+		}
+
+		// unsigned comparison of payload bytes
+		for (int i = 0; i < PAYLOAD_BYTES; i++) {
+			if ((this.payload[i] & 0xff) > (other.payload[i] & 0xff)) {
 				return 1;
-			} else if ((this.bytes[i] & 0xff) < (other.bytes[i] & 0xff)) {
+			} else if ((this.payload[i] & 0xff) < (other.payload[i] & 0xff)) {
 				return -1;
 			}
 		}
+
 		return 0;
 	}
 
@@ -324,17 +391,17 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	}
 
 	/**
-	 * Encode a byte array into a base-62 string.
+	 * Encode a KSUID into a base-62 string.
 	 * 
-	 * @param bytes a byte array
+	 * @param ksuid a KSUID
 	 * @return a string
 	 */
-	protected static String toBase62(byte[] bytes) {
+	protected static String toBase62(final Ksuid ksuid) {
 
-		char[] buffer = new char[KSUID_CHARS];
+		int[] number = ksuid.toInts();
+
 		int b = KSUID_CHARS; // buffer index
-
-		int[] number = toInts(bytes);
+		char[] buffer = new char[KSUID_CHARS];
 
 		while (!isZero(number)) {
 			final int[] quotient = new int[KSUID_INTS]; // division output
@@ -352,15 +419,15 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	}
 
 	/**
-	 * Decode a base-62 string into a byte array.
+	 * Decode a base-62 string into a KSUID.
 	 * 
 	 * @param string a string
-	 * @return a byte array
+	 * @return a KSUID
 	 */
-	protected static byte[] fromBase62(String string) {
+	protected static Ksuid fromBase62(final String string) {
 
-		char[] chars = toCharArray(string);
 		int[] number = new int[KSUID_INTS];
+		char[] chars = toCharArray(string);
 
 		for (int i = 0; i < chars.length; i++) {
 			final int remainder = BASE62_MAP[chars[i]];
@@ -368,7 +435,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 			number = product;
 		}
 
-		return fromInts(number);
+		return new Ksuid(number);
 	}
 
 	protected static int remainder(int[] number, int divisor, int[] quotient /* division output */) {
@@ -404,32 +471,21 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 		return product;
 	}
 
-	protected static int[] toInts(final byte[] bytes) {
-
+	protected int[] toInts() {
 		int[] ints = new int[KSUID_INTS];
 
-		for (int i = 0, j = 0; i < ints.length; i++, j += 4) {
-			ints[i] |= (bytes[j + 0] & 0xff) << 0x18;
-			ints[i] |= (bytes[j + 1] & 0xff) << 0x10;
-			ints[i] |= (bytes[j + 2] & 0xff) << 0x08;
-			ints[i] |= (bytes[j + 3] & 0xff) << 0x00;
+		// copy the seconds
+		ints[0] = this.seconds;
+
+		// copy the payload
+		for (int i = 1, j = 0; i < ints.length; i++, j += 4) {
+			ints[i] |= (this.payload[j + 0] & 0xff) << 0x18;
+			ints[i] |= (this.payload[j + 1] & 0xff) << 0x10;
+			ints[i] |= (this.payload[j + 2] & 0xff) << 0x08;
+			ints[i] |= (this.payload[j + 3] & 0xff) << 0x00;
 		}
 
 		return ints;
-	}
-
-	protected static byte[] fromInts(final int[] ints) {
-
-		byte[] bytes = new byte[KSUID_BYTES];
-
-		for (int i = 0, j = 0; i < ints.length; i++, j += 4) {
-			bytes[j + 0] = (byte) ((ints[i] >>> 0x18) & 0xff);
-			bytes[j + 1] = (byte) ((ints[i] >>> 0x10) & 0xff);
-			bytes[j + 2] = (byte) ((ints[i] >>> 0x08) & 0xff);
-			bytes[j + 3] = (byte) ((ints[i] >>> 0x00) & 0xff);
-		}
-
-		return bytes;
 	}
 
 	private static boolean isZero(int[] number) {
