@@ -104,7 +104,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	/**
 	 * Create a new KSUID.
 	 * 
-	 * @param bytes an integer array
+	 * @param ints an integer array
 	 */
 	protected Ksuid(final int[] ints) {
 
