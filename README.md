@@ -176,15 +176,33 @@ Use a `KsuidFactory` with `java.util.Random`:
 ```java
 // use a `java.util.Random` instance for fast generation
 KsuidFactory factory = KsuidFactory.newInstance(new Random());
+
+// use the factory
 Ksuid ksuid = factory.create();
 ```
 
-Use a `KsuidFactory` with a random generator of your choice:
+Use a `KsuidFactory` with a random generator of your choice inside of a `Supplier<byte[]>`:
 
 ```java
 // use a random supplier that returns an array of 16 bytes
 AwesomeRandom awesomeRandom = new AwesomeRandom(); // a hypothetical RNG
 KsuidFactory factory = KsuidFactory.newInstance(() -> awesomeRandom.nextBytes(Ksuid.PAYLOAD_BYTES));
+
+// use the factory
+Ksuid ksuid = factory.create();
+```
+
+Use a `KsuidFactory` with `ThreadLocalRandom` inside of a `Supplier<byte[]>`:
+
+```java
+// use a random supplier that returns an array of 16 bytes
+KsuidFactory factory = KsuidFactory.newInstance(() -> {
+	final byte[] bytes = new byte[Ksuid.PAYLOAD_BYTES];
+	ThreadLocalRandom.current().nextBytes(bytes);
+	return bytes;
+});
+
+// use the factory
 Ksuid ksuid = factory.create();
 ```
 
