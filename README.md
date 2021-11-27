@@ -171,6 +171,23 @@ byte[] payload = ksuid.getPayload(); // 16 bytes (128 bits)
 byte[] payload = Ksuid.getPayload("0123456789ABCDEFGHJKMNPQRST"); // 16 bytes (128 bits)
 ```
 
+Use key generator that makes substitution easy if necessary:
+
+```java
+package com.example;
+
+import com.github.f4b6a3.ksuid.KsuidCreator;
+
+public class KeyGenerator {
+    public static String next() {
+        return KsuidCreator.getKsuid().toString();
+    }
+}
+```
+```java
+String key = KeyGenerator.next();
+```
+
 Use a `KsuidFactory` with `java.util.Random`:
 
 ```java
