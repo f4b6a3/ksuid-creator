@@ -96,18 +96,8 @@ Ksuid ksuid = KsuidCreator.getKsuidMs();
 ```
 
 ```java
-// Create a KSUID with a given instant and millisecond precision
-Ksuid ksuid = KsuidCreator.getKsuidMs(Instant.now());
-```
-
-```java
 // Create a KSUID with microsecond precision
 Ksuid ksuid = KsuidCreator.getKsuidUs();
-```
-
-```java
-// Create a KSUID with a given instant and microsecond precision
-Ksuid ksuid = KsuidCreator.getKsuidUs(Instant.now());
 ```
 
 ```java
@@ -115,10 +105,7 @@ Ksuid ksuid = KsuidCreator.getKsuidUs(Instant.now());
 Ksuid ksuid = KsuidCreator.getKsuidNs();
 ```
 
-```java
-// Create a KSUID with a given instant and nanosecond precision
-Ksuid ksuid = KsuidCreator.getKsuidNs(Instant.now());
-```
+---
 
 Create a KSUID from a canonical string (27 chars, base-62):
 
@@ -126,17 +113,23 @@ Create a KSUID from a canonical string (27 chars, base-62):
 Ksuid ksuid = Ksuid.from("0123456789ABCDEFGHIJKLMNOPQ");
 ```
 
+---
+
 Convert a KSUID into a canonical string (27 chars, base-62):
 
 ```java
 String string = ksuid.toString(); // 0123456789ABCDEFGHIJKLMNOPQ
 ```
 
+---
+
 Convert a KSUID into a byte array:
 
 ```java
 byte[] bytes = ksuid.toBytes(); // 20 bytes (160 bits)
 ```
+
+---
 
 Get the creation instant of a KSUID:
 
@@ -149,31 +142,9 @@ Instant instant = ksuid.getInstant(); // 2014-06-05T09:06:29Z
 Instant instant = Ksuid.getInstant("0123456789ABCDEFGHIJKLMNOPQ"); // 2014-06-05T09:06:29Z
 ```
 
-Get the time component of a KSUID:
-
-```java
-long time = ksuid.getTime(); // 1401959189
-```
-
-```java
-// static method
-long time = Ksuid.getTime("0123456789ABCDEFGHIJKLMNOPQ"); // 1401959189
-```
-
-Get the payload component of a KSUID:
-
-```java
-byte[] payload = ksuid.getPayload(); // 16 bytes (128 bits)
-```
-
-```java
-// static method
-byte[] payload = Ksuid.getPayload("0123456789ABCDEFGHJKMNPQRST"); // 16 bytes (128 bits)
-```
-
 ---
 
-Use key generator that makes substitution easy if necessary:
+A key generator that makes substitution easy if necessary:
 
 ```java
 package com.example;
@@ -192,7 +163,7 @@ String key = KeyGenerator.next();
 
 ---
 
-Use a `KsuidFactory` with `java.util.Random`:
+A `KsuidFactory` with `java.util.Random`:
 
 ```java
 // use a `java.util.Random` instance for fast generation
@@ -204,7 +175,7 @@ Ksuid ksuid = factory.create();
 
 ---
 
-Use a `KsuidFactory` with `ThreadLocalRandom` inside of a `Supplier<byte[]>`:
+A `KsuidFactory` with `ThreadLocalRandom` inside of a `Supplier<byte[]>`:
 
 ```java
 // use a random supplier that returns an array of 16 bytes
