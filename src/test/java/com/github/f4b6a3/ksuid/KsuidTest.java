@@ -2,6 +2,7 @@ package com.github.f4b6a3.ksuid;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -280,10 +281,22 @@ public class KsuidTest {
 		byte[] bytes = new byte[Ksuid.KSUID_BYTES];
 
 		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+
 			random.nextBytes(bytes);
 			Ksuid ksuid1 = Ksuid.from(bytes);
-			Ksuid ksuid2 = new Ksuid(ksuid1);
+			Ksuid ksuid2 = Ksuid.from(bytes);
 			assertEquals(ksuid1, ksuid2);
+			assertEquals(ksuid1.toString(), ksuid2.toString());
+			assertEquals(Arrays.toString(ksuid1.toBytes()), Arrays.toString(ksuid2.toBytes()));
+
+			// change all bytes
+			for (int j = 0; j < bytes.length; j++) {
+				bytes[j]++;
+			}
+			Ksuid ksuid3 = Ksuid.from(bytes);
+			assertNotEquals(ksuid1, ksuid3);
+			assertNotEquals(ksuid1.toString(), ksuid3.toString());
+			assertNotEquals(Arrays.toString(ksuid1.toBytes()), Arrays.toString(ksuid3.toBytes()));
 		}
 	}
 
@@ -305,8 +318,15 @@ public class KsuidTest {
 			BigInteger number2 = new BigInteger(1, bytes);
 			BigInteger number3 = new BigInteger(1, bytes);
 
-			assertEquals(number1.compareTo(number2), ksuid1.compareTo(ksuid2));
-			assertEquals(number2.compareTo(number3), ksuid2.compareTo(ksuid3));
+			// compare numerically
+			assertEquals(number1.compareTo(number2) > 0, ksuid1.compareTo(ksuid2) > 0);
+			assertEquals(number1.compareTo(number2) < 0, ksuid1.compareTo(ksuid2) < 0);
+			assertEquals(number2.compareTo(number3) == 0, ksuid2.compareTo(ksuid3) == 0);
+
+			// compare lexicographically
+			assertEquals(number1.compareTo(number2) > 0, ksuid1.toString().compareTo(ksuid2.toString()) > 0);
+			assertEquals(number1.compareTo(number2) < 0, ksuid1.toString().compareTo(ksuid2.toString()) < 0);
+			assertEquals(number2.compareTo(number3) == 0, ksuid2.toString().compareTo(ksuid3.toString()) == 0);
 		}
 	}
 
