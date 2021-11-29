@@ -86,7 +86,7 @@ Sequence of KSUIDs:
  time       payload
 ```
 
-### Other usage examples
+### More Examples
 
 Create a KSUID with subsecond precision:
 
@@ -171,6 +171,8 @@ byte[] payload = ksuid.getPayload(); // 16 bytes (128 bits)
 byte[] payload = Ksuid.getPayload("0123456789ABCDEFGHJKMNPQRST"); // 16 bytes (128 bits)
 ```
 
+---
+
 Use key generator that makes substitution easy if necessary:
 
 ```java
@@ -188,6 +190,8 @@ public class KeyGenerator {
 String key = KeyGenerator.next();
 ```
 
+---
+
 Use a `KsuidFactory` with `java.util.Random`:
 
 ```java
@@ -198,16 +202,7 @@ KsuidFactory factory = KsuidFactory.newInstance(new Random());
 Ksuid ksuid = factory.create();
 ```
 
-Use a `KsuidFactory` with a random generator of your choice inside of a `Supplier<byte[]>`:
-
-```java
-// use a random supplier that returns an array of 16 bytes
-AwesomeRandom awesomeRandom = new AwesomeRandom(); // a hypothetical RNG
-KsuidFactory factory = KsuidFactory.newInstance(() -> awesomeRandom.nextBytes(Ksuid.PAYLOAD_BYTES));
-
-// use the factory
-Ksuid ksuid = factory.create();
-```
+---
 
 Use a `KsuidFactory` with `ThreadLocalRandom` inside of a `Supplier<byte[]>`:
 
@@ -247,6 +242,9 @@ To execute the benchmark, run `./benchmark/run.sh`.
 
 Other identifier generators
 ------------------------------------------------------
+
+Check out the other ID generators.
+
 *   [UUID Creator](https://github.com/f4b6a3/uuid-creator)
 *   [ULID Creator](https://github.com/f4b6a3/ulid-creator)
 *   [TSID Creator](https://github.com/f4b6a3/tsid-creator)
