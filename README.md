@@ -115,22 +115,6 @@ Ksuid ksuid = Ksuid.from("0123456789ABCDEFGHIJKLMNOPQ");
 
 ---
 
-Convert a KSUID into a canonical string (27 chars, base-62):
-
-```java
-String string = ksuid.toString(); // 0123456789ABCDEFGHIJKLMNOPQ
-```
-
----
-
-Convert a KSUID into a byte array:
-
-```java
-byte[] bytes = ksuid.toBytes(); // 20 bytes (160 bits)
-```
-
----
-
 Get the creation instant of a KSUID:
 
 ```java
