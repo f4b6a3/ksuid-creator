@@ -99,6 +99,23 @@ public class KsuidFactoryTest {
 		assertTrue(checkCreationTime(list, startTime, endTime));
 	}
 
+	@Test
+	public void testGetMonotonicKsuid() {
+		Ksuid[] list = new Ksuid[DEFAULT_LOOP_MAX];
+
+		long startTime = System.currentTimeMillis() / 1000;
+
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+			list[i] = KsuidCreator.getMonotonicKsuid();
+		}
+
+		long endTime = System.currentTimeMillis() / 1000;
+
+		assertTrue(checkNullOrInvalid(list));
+		assertTrue(checkUniqueness(list));
+		assertTrue(checkCreationTime(list, startTime, endTime));
+	}
+
 	private boolean checkNullOrInvalid(Ksuid[] list) {
 		for (Ksuid ksuid : list) {
 			assertNotNull("KSUID is null", ksuid);
@@ -217,6 +234,15 @@ public class KsuidFactoryTest {
 			int payloadNs = (((payload[0] & 0xff) << 24) | ((payload[1] & 0xff) << 16) | ((payload[2] & 0xff) << 8)
 					| (payload[3] & 0xff)) >>> 2;
 			assertEquals(ns, payloadNs);
+		}
+	}
+
+	@Test
+	public void testGetMonotonicKsuidTime() {
+		for (int i = 0; i < 100; i++) {
+			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
+			Ksuid ksuid = KsuidCreator.getMonotonicKsuid(Instant.ofEpochSecond(seconds));
+			assertEquals(seconds, ksuid.getTime());
 		}
 	}
 

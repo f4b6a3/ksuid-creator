@@ -35,7 +35,7 @@ Add these lines to your `pom.xml`.
 <dependency>
   <groupId>com.github.f4b6a3</groupId>
   <artifactId>ksuid-creator</artifactId>
-  <version>2.2.0</version>
+  <version>2.3.0</version>
 </dependency>
 ```
 
@@ -48,9 +48,9 @@ Module and bundle names are the same as the root package name.
 *   JPMS module name: `com.github.f4b6a3.ksuid`
 *   OSGi symbolic name: `com.github.f4b6a3.ksuid`
 
-### KSUID
+### Segment's KSUID
 
-The KSUID is a 160 bit long identifier (20 bytes). Its consists of a 32-bit timestamp and a 128-bit randomly generated payload.
+The Segment's KSUID is a 160 bit long identifier (20 bytes). Its consists of a 32-bit timestamp and a 128-bit randomly generated payload.
 
 ```java
 // Create a KSUID
@@ -81,6 +81,49 @@ Sequence of KSUIDs:
 1tVNDMlWdoyH1xnxFYI9UubeIqB
 1tVNDHE2n8HOAnMB5bO8X4eEFTD
 1tVNDNHR0sZx5d6NE5SkyVbmIzB
+
+|----|--------------------|
+ time       payload
+```
+
+### Monotonic KSUID
+
+The Monotonic KSUID is a 160 bit long identifier (20 bytes). Its consists of a 32-bit timestamp and a 128-bit randomly generated payload.
+
+The payload is incremented by 1 whenever the current second is equal to the previous one. But when the current second is different, the payload changes to another random value.
+
+This KSUID implementation is inspired on [Monotonic ULID](https://github.com/ulid/spec). It's main advantage is generation speed.
+
+```java
+// Create a Monotonic KSUID
+Ksuid ksuid = KsuidCreator.getMonotonicKsuid();
+```
+
+```java
+// Create a Monotonic KSUID with a given instant
+Ksuid ksuid = KsuidCreator.getMonotonicKsuid(Instant.now());
+```
+
+Sequence of Monotonic KSUIDs:
+
+```text
+227rXSag11hJis1JH3uBvYrnE90
+227rXSag11hJis1JH3uBvYrnE91
+227rXSag11hJis1JH3uBvYrnE92
+227rXSag11hJis1JH3uBvYrnE93
+227rXSag11hJis1JH3uBvYrnE94
+227rXSag11hJis1JH3uBvYrnE95
+227rXSag11hJis1JH3uBvYrnE96
+227rXSag11hJis1JH3uBvYrnE97
+227rXYsDo6ZezhyFY53skViHmYs < second changed
+227rXYsDo6ZezhyFY53skViHmYt
+227rXYsDo6ZezhyFY53skViHmYu
+227rXYsDo6ZezhyFY53skViHmYv
+227rXYsDo6ZezhyFY53skViHmYw
+227rXYsDo6ZezhyFY53skViHmYx
+227rXYsDo6ZezhyFY53skViHmYy
+227rXYsDo6ZezhyFY53skViHmYz
+     ^ look               ^ look
 
 |----|--------------------|
  time       payload
@@ -180,14 +223,16 @@ This section shows benchmarks comparing `KsuidCreator` to `java.util.UUID`.
 
 ```
 --------------------------------------------------------------------------------
-THROUGHPUT (operations/msec)            Mode  Cnt     Score    Error   Units
+THROUGHPUT (operations/msec)              Mode  Cnt     Score     Error   Units
 --------------------------------------------------------------------------------
-UUID_randomUUID                        thrpt    5  2035,533 ± 39,739  ops/ms
-UUID_randomUUID_toString               thrpt    5  1177,259 ± 32,038  ops/ms
-KsuidCreator_getKsuid                  thrpt    5  1927,256 ± 33,542  ops/ms
-KsuidCreator_getKsuid_toString         thrpt    5  1012,974 ± 18,003  ops/ms
+UUID_randomUUID                          thrpt   5   2055,664 ±  41,035  ops/ms
+UUID_randomUUID_toString                 thrpt   5   1168,758 ±  17,917  ops/ms
+KsuidCreator_getKsuid                    thrpt   5   1941,962 ±  23,391  ops/ms
+KsuidCreator_getKsuid_toString           thrpt   5   1012,428 ±   7,655  ops/ms
+KsuidCreator_getMonotonicKsuid           thrpt   5  15235,789 ± 182,640  ops/ms
+KsuidCreator_getMonotonicKsuid_toString  thrpt   5   1898,433 ±  26,993  ops/ms
 --------------------------------------------------------------------------------
-Total time: 00:05:21
+Total time: 00:08:01
 --------------------------------------------------------------------------------
 ```
 
@@ -203,3 +248,4 @@ Check out the other ID generators.
 *   [UUID Creator](https://github.com/f4b6a3/uuid-creator)
 *   [ULID Creator](https://github.com/f4b6a3/ulid-creator)
 *   [TSID Creator](https://github.com/f4b6a3/tsid-creator)
+

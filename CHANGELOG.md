@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 Nothing unreleaded.
 
+## [2.3.0] - 2021-12-11
+
+Implemented Monotonic KSUID inspired on [Monotonic ULID](https://github.com/ulid/spec).
+
 ## [2.2.0] - 2021-11-03
 
 Optimization: the `Ksuid.compareTo()` method is at least 25% faster.
@@ -110,7 +114,8 @@ Project created as an alternative Java implementation of [K-Sortable Unique IDen
 -   Added `DefaultRandomGenerator`
 -   Added test cases
 
-[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.2.0...HEAD
+[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.3.0...HEAD
+[2.3.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.2.0...ksuid-creator-2.3.0
 [2.2.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.1.2...ksuid-creator-2.2.0
 [2.1.2]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.1.1...ksuid-creator-2.1.2
 [2.1.1]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.1.0...ksuid-creator-2.1.1

@@ -367,6 +367,29 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	}
 
 	/**
+	 * Returns a new KSUID by incrementing the payload of the current KSUID.
+	 * 
+	 * @return a KSUID
+	 */
+	public Ksuid increment() {
+
+		// 0xff + 1 = 0x00
+		final byte overflow = 0x00;
+
+		// copy the current KSUID
+		Ksuid ksuid = new Ksuid(this);
+
+		// increment payload bytes from right to left
+		for (int i = PAYLOAD_BYTES - 1; i >= 0; i--) {
+			if (++ksuid.payload[i] != overflow) {
+				break; // stop if did't overflow
+			}
+		}
+
+		return ksuid; // incremented copy
+	}
+
+	/**
 	 * Convert the Unix time to KSUID time.
 	 * 
 	 * The 4 fist bytes of contain an unsigned time since epoch 14e8.

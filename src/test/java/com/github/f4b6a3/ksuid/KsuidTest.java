@@ -21,8 +21,10 @@ public class KsuidTest {
 	private static final int DEFAULT_LOOP_MAX = 1_000;
 
 	@Test
-	public void testSegmentIoExample() {
+	public void testSegmentIoExample1() {
 
+		// SOURCE: https://github.com/segmentio/ksuid
+		//
 		// REPRESENTATION:
 		// String: 0ujtsYcgvSTl8PAuAdqWYSMnLOv
 		// Raw: 0669F7EFB5A1CD34B5F99D1154FB6853345C9735
@@ -33,7 +35,6 @@ public class KsuidTest {
 		// Timestamp: 107608047
 		// Payload: B5A1CD34B5F99D1154FB6853345C9735
 		//
-		// URL: https://github.com/segmentio/ksuid
 
 		String string = "0ujtsYcgvSTl8PAuAdqWYSMnLOv";
 		String raw = "0669F7EFB5A1CD34B5F99D1154FB6853345C9735";
@@ -61,6 +62,53 @@ public class KsuidTest {
 		// Payload: B5A1CD34B5F99D1154FB6853345C9735
 		String payload2 = new BigInteger(1, ksuid.getPayload()).toString(16).toUpperCase();
 		assertEquals(payload, payload2);
+	}
+
+	@Test
+	public void testSegmentIoExample2() {
+
+		// SOURCE: https://github.com/segmentio/ksuid/issues/58
+		//
+		// REPRESENTATION:
+		// String: WfeXVK2UN8Qh86bSI6R4zNvC7ge
+		// Raw: E4FAF58000000000000000000000000000000000
+		//
+		// COMPONENTS:
+		//
+		// Time: 2136-02-07 01:28:16 -0500 EST
+		// Timestamp: 3841652096
+		// Payload: 00000000000000000000000000000000
+		//
+
+		String string = "WfeXVK2UN8Qh86bSI6R4zNvC7ge";
+		String raw = "E4FAF58000000000000000000000000000000000";
+		Instant instant = Instant.parse("2136-02-07T06:28:16Z"); // UTC
+		long timestamp = 3841652096L; // KSUID time
+		String payload = "00000000000000000000000000000000";
+
+		// instantiate a KSUID from bytes
+		byte[] a = new byte[20];
+		byte[] b = new BigInteger(raw, 16).toByteArray();
+		System.arraycopy(b, b.length - a.length, a, 0, a.length);
+
+		Ksuid ksuid = Ksuid.from(a);
+
+		// String: WfeXVK2UN8Qh86bSI6R4zNvC7ge
+		assertEquals(string, ksuid.toString());
+
+		// Raw: E4FAF58000000000000000000000000000000000
+		String raw2 = new BigInteger(1, ksuid.toBytes()).toString(16).toUpperCase();
+		assertEquals(raw.replaceAll("^0+", ""), raw2);
+
+		// Time: 2136-02-07 01:28:16 -0500 EST
+		assertEquals(instant, ksuid.getInstant());
+
+		// Timestamp: 3841652096
+		assertEquals(Ksuid.toUnixTime(timestamp), ksuid.getTime());
+
+		// Payload: 00000000000000000000000000000000
+		String payload2 = new BigInteger(1, ksuid.getPayload()).toString(16).toUpperCase();
+		assertEquals(new BigInteger(payload, 16).toString(16).toUpperCase(), payload2);
 	}
 
 	@Test
@@ -272,6 +320,37 @@ public class KsuidTest {
 
 		ksuid = "#0123456789ABCDEFGHIJKLMNOP"; // Special char
 		assertFalse("KSUID with special chars should be invalid. ", Ksuid.isValid(ksuid));
+	}
+
+	@Test
+	public void testIncrement() {
+
+		final long seconds = System.currentTimeMillis() / 1000;
+		final BigInteger increment = BigInteger.valueOf(DEFAULT_LOOP_MAX);
+
+		byte[] payload1 = { //
+				(byte) 0x00, (byte) 0x11, (byte) 0x22, (byte) 0x33, //
+				(byte) 0x44, (byte) 0x55, (byte) 0x66, (byte) 0x77, //
+				(byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, //
+				(byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff };
+		Ksuid ksuid1 = new Ksuid(seconds, payload1);
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+			ksuid1 = ksuid1.increment();
+		}
+		assertEquals(seconds, ksuid1.getTime());
+		assertEquals(new BigInteger(payload1).add(increment), new BigInteger(ksuid1.getPayload()));
+
+		byte[] payload2 = { //
+				(byte) 0x00, (byte) 0x11, (byte) 0x22, (byte) 0x33, //
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, //
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff };
+		Ksuid ksuid2 = new Ksuid(seconds, payload2);
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+			ksuid2 = ksuid2.increment();
+		}
+		assertEquals(seconds, ksuid2.getTime());
+		assertEquals(new BigInteger(payload2).add(increment), new BigInteger(ksuid2.getPayload()));
 	}
 
 	@Test

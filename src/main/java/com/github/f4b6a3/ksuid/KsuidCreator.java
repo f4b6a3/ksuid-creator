@@ -76,6 +76,20 @@ public final class KsuidCreator {
 	}
 
 	/**
+	 * Create a Monotonic KSUID.
+	 * 
+	 * The payload is reset to a new value whenever the second changes.
+	 * 
+	 * If more than one KSUID is generated within the same second, the payload is
+	 * incremented by one.
+	 * 
+	 * @return a KSUID
+	 */
+	public static Ksuid getMonotonicKsuid() {
+		return MonotonicFactoryHolder.INSTANCE.create();
+	}
+
+	/**
 	 * Create a KSUID.
 	 * 
 	 * @param instant an instant
@@ -120,6 +134,21 @@ public final class KsuidCreator {
 		return NsFactoryHolder.INSTANCE.create(instant);
 	}
 
+	/**
+	 * Create a Monotonic KSUID.
+	 * 
+	 * The payload is reset to a new value whenever the second changes.
+	 * 
+	 * If more than one KSUID is generated within the same second, the payload is
+	 * incremented by one.
+	 * 
+	 * @param instant an instant
+	 * @return a KSUID
+	 */
+	public static Ksuid getMonotonicKsuid(Instant instant) {
+		return MonotonicFactoryHolder.INSTANCE.create(instant);
+	}
+
 	private static class FactoryHolder {
 		static final KsuidFactory INSTANCE = KsuidFactory.newInstance();
 	}
@@ -134,5 +163,9 @@ public final class KsuidCreator {
 
 	private static class NsFactoryHolder {
 		static final KsuidFactory INSTANCE = KsuidFactory.newNsInstance();
+	}
+
+	private static class MonotonicFactoryHolder {
+		static final KsuidFactory INSTANCE = KsuidFactory.newMonotonicInstance();
 	}
 }

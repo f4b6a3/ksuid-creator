@@ -50,4 +50,14 @@ public class Throughput {
 	public String KsuidCreator_getKsuid_toString() {
 		return KsuidCreator.getKsuid().toString();
 	}
+
+	@Benchmark
+	public Ksuid KsuidCreator_getMonotonicKsuid() {
+		return KsuidCreator.getMonotonicKsuid();
+	}
+
+	@Benchmark
+	public String KsuidCreator_getMonotonicKsuid_toString() {
+		return KsuidCreator.getMonotonicKsuid().toString();
+	}
 }

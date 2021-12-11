@@ -84,7 +84,7 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newMsInstance() {
-		return new KsuidFactory(new MsKsuidFunction());
+		return new KsuidFactory(new KsuidMsFunction());
 	}
 
 	/**
@@ -94,7 +94,7 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newMsInstance(Random random) {
-		return new KsuidFactory(new MsKsuidFunction(random));
+		return new KsuidFactory(new KsuidMsFunction(random));
 	}
 
 	/**
@@ -106,7 +106,7 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newMsInstance(Supplier<byte[]> randomSupplier) {
-		return new KsuidFactory(new MsKsuidFunction(randomSupplier));
+		return new KsuidFactory(new KsuidMsFunction(randomSupplier));
 	}
 
 	/**
@@ -115,7 +115,7 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newUsInstance() {
-		return new KsuidFactory(new UsKsuidFunction());
+		return new KsuidFactory(new KsuidUsFunction());
 	}
 
 	/**
@@ -125,7 +125,7 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newUsInstance(Random random) {
-		return new KsuidFactory(new UsKsuidFunction(random));
+		return new KsuidFactory(new KsuidUsFunction(random));
 	}
 
 	/**
@@ -137,7 +137,7 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newUsInstance(Supplier<byte[]> randomSupplier) {
-		return new KsuidFactory(new UsKsuidFunction(randomSupplier));
+		return new KsuidFactory(new KsuidUsFunction(randomSupplier));
 	}
 
 	/**
@@ -151,7 +151,7 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newNsInstance() {
-		return new KsuidFactory(new NsKsuidFunction());
+		return new KsuidFactory(new KsuidNsFunction());
 	}
 
 	/**
@@ -166,7 +166,7 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newNsInstance(Random random) {
-		return new KsuidFactory(new NsKsuidFunction(random));
+		return new KsuidFactory(new KsuidNsFunction(random));
 	}
 
 	/**
@@ -183,7 +183,19 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newNsInstance(Supplier<byte[]> randomSupplier) {
-		return new KsuidFactory(new NsKsuidFunction(randomSupplier));
+		return new KsuidFactory(new KsuidNsFunction(randomSupplier));
+	}
+
+	public static KsuidFactory newMonotonicInstance() {
+		return new KsuidFactory(new MonotonicKsuidFunction());
+	}
+
+	public static KsuidFactory newMonotonicInstance(Random random) {
+		return new KsuidFactory(new MonotonicKsuidFunction(random));
+	}
+
+	public static KsuidFactory newMonotonicInstance(Supplier<byte[]> randomSupplier) {
+		return new KsuidFactory(new MonotonicKsuidFunction(randomSupplier));
 	}
 
 	/**
@@ -243,20 +255,20 @@ public final class KsuidFactory {
 	/**
 	 * Function that creates KSUIDs with millisecond precision.
 	 */
-	protected static final class MsKsuidFunction implements Function<Instant, Ksuid> {
+	protected static final class KsuidMsFunction implements Function<Instant, Ksuid> {
 
 		// it must return an array of 16 bytes
 		private Supplier<byte[]> randomSupplier;
 
-		public MsKsuidFunction() {
+		public KsuidMsFunction() {
 			this(new SecureRandom());
 		}
 
-		public MsKsuidFunction(Random random) {
+		public KsuidMsFunction(Random random) {
 			this(getRandomSupplier(random));
 		}
 
-		public MsKsuidFunction(Supplier<byte[]> randomSupplier) {
+		public KsuidMsFunction(Supplier<byte[]> randomSupplier) {
 			this.randomSupplier = randomSupplier;
 		}
 
@@ -289,20 +301,20 @@ public final class KsuidFactory {
 	/**
 	 * Function that creates KSUIDs with microsecond precision.
 	 */
-	protected static final class UsKsuidFunction implements Function<Instant, Ksuid> {
+	protected static final class KsuidUsFunction implements Function<Instant, Ksuid> {
 
 		// it must return an array of 16 bytes
 		private Supplier<byte[]> randomSupplier;
 
-		public UsKsuidFunction() {
+		public KsuidUsFunction() {
 			this(new SecureRandom());
 		}
 
-		public UsKsuidFunction(Random random) {
+		public KsuidUsFunction(Random random) {
 			this(getRandomSupplier(random));
 		}
 
-		public UsKsuidFunction(Supplier<byte[]> randomSupplier) {
+		public KsuidUsFunction(Supplier<byte[]> randomSupplier) {
 			this.randomSupplier = randomSupplier;
 		}
 
@@ -331,20 +343,20 @@ public final class KsuidFactory {
 	/**
 	 * Function that creates KSUIDs with nanosecond precision.
 	 */
-	protected static final class NsKsuidFunction implements Function<Instant, Ksuid> {
+	protected static final class KsuidNsFunction implements Function<Instant, Ksuid> {
 
 		// it must return an array of 16 bytes
 		private Supplier<byte[]> randomSupplier;
 
-		public NsKsuidFunction() {
+		public KsuidNsFunction() {
 			this(new SecureRandom());
 		}
 
-		public NsKsuidFunction(Random random) {
+		public KsuidNsFunction(Random random) {
 			this(getRandomSupplier(random));
 		}
 
-		public NsKsuidFunction(Supplier<byte[]> randomSupplier) {
+		public KsuidNsFunction(Supplier<byte[]> randomSupplier) {
 			this.randomSupplier = randomSupplier;
 		}
 
@@ -368,6 +380,51 @@ public final class KsuidFactory {
 			payload[3] = (byte) ((subsecs >>> 0x00) & 0xff);
 
 			return new Ksuid(seconds, payload);
+		}
+	}
+
+	/**
+	 * Function that creates Monotonic KSUIDs.
+	 */
+	protected static final class MonotonicKsuidFunction implements Function<Instant, Ksuid> {
+
+		private long lastSeconds = -1;
+		private Ksuid lastKsuid = null;
+
+		// it must return an array of 16 bytes
+		private Supplier<byte[]> randomSupplier;
+
+		public MonotonicKsuidFunction() {
+			this(new SecureRandom());
+		}
+
+		public MonotonicKsuidFunction(Random random) {
+			this(getRandomSupplier(random));
+		}
+
+		public MonotonicKsuidFunction(Supplier<byte[]> randomSupplier) {
+			this.randomSupplier = randomSupplier;
+		}
+
+		@Override
+		public synchronized Ksuid apply(Instant instant) {
+
+			final long seconds;
+
+			if (instant == null) {
+				seconds = System.currentTimeMillis() / 1000L;
+			} else {
+				seconds = instant.getEpochSecond();
+			}
+
+			if (seconds == this.lastSeconds) {
+				this.lastKsuid = lastKsuid.increment();
+			} else {
+				this.lastKsuid = new Ksuid(seconds, this.randomSupplier.get());
+			}
+
+			this.lastSeconds = seconds;
+			return new Ksuid(this.lastKsuid);
 		}
 	}
 
