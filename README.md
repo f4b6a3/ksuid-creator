@@ -92,7 +92,7 @@ The Monotonic KSUID is a 160 bit long identifier (20 bytes). Its consists of a 3
 
 The payload is incremented by 1 whenever the current second is equal to the previous one. But when the current second is different, the payload changes to another random value.
 
-It's like Segment's [`sequence.go`](https://github.com/segmentio/ksuid/blob/master/sequence.go) generator, which generates sequential KSUIDs, but there are two differences. You must pass a seed to `sequence.go` generator. In Monotonic KSUID, the seed changes every second. As the seed always changes, there is no limit to the number of KSUIDs a single seed can generate.
+It's like Segment's [`sequence.go`](https://github.com/segmentio/ksuid/blob/master/sequence.go) generator, which generates sequential KSUIDs, but there are two differences. You must pass a seed to `sequence.go` generator. In Monotonic KSUID, the seed changes every second. Since the seed changes every second, there is no limit to the number of KSUIDs a single seed can generate.
 
 This KSUID implementation is derived from [Monotonic ULID](https://github.com/ulid/spec). Its main advantage is the generation speed.
 
