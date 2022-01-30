@@ -35,7 +35,7 @@ public final class KsuidCreator {
 	}
 
 	/**
-	 * Create a KSUID.
+	 * Create a Segment's KSUID.
 	 * 
 	 * @return a KSUID
 	 */
@@ -44,35 +44,15 @@ public final class KsuidCreator {
 	}
 
 	/**
-	 * Create a KSUID with millisecond precision.
+	 * Create a KSUID with sub-second precision.
+	 * 
+	 * Three sub-second precisions are supported: millisecond, microsecond, and
+	 * nanosecond. The precision is detected at runtime.
 	 * 
 	 * @return a KSUID
 	 */
-	public static Ksuid getKsuidMs() {
-		return MsFactoryHolder.INSTANCE.create();
-	}
-
-	/**
-	 * Create a KSUID with microsecond precision (JDK 9+).
-	 * 
-	 * @return a KSUID
-	 */
-	public static Ksuid getKsuidUs() {
-		return UsFactoryHolder.INSTANCE.create();
-	}
-
-	/**
-	 * Create a KSUID with nanosecond precision (JDK 9+).
-	 * 
-	 * Check if the target runtime provides nanosecond precision:
-	 * {@code System.out.println(Instant.now().getNano());}
-	 * 
-	 * Read: https://stackoverflow.com/questions/1712205
-	 * 
-	 * @return a KSUID
-	 */
-	public static Ksuid getKsuidNs() {
-		return NsFactoryHolder.INSTANCE.create();
+	public static Ksuid getSubsecondKsuid() {
+		return SubsecondHolder.INSTANCE.create();
 	}
 
 	/**
@@ -86,11 +66,11 @@ public final class KsuidCreator {
 	 * @return a KSUID
 	 */
 	public static Ksuid getMonotonicKsuid() {
-		return MonotonicFactoryHolder.INSTANCE.create();
+		return MonotonicHolder.INSTANCE.create();
 	}
 
 	/**
-	 * Create a KSUID.
+	 * Create a Segment's KSUID.
 	 * 
 	 * @param instant an instant
 	 * @return a KSUID
@@ -100,38 +80,16 @@ public final class KsuidCreator {
 	}
 
 	/**
-	 * Create a KSUID with millisecond precision.
+	 * Create a KSUID with sub-second precision.
+	 * 
+	 * Three sub-second precisions are supported: millisecond, microsecond, and
+	 * nanosecond. The precision is detected at runtime.
 	 * 
 	 * @param instant an instant
 	 * @return a KSUID
 	 */
-	public static Ksuid getKsuidMs(Instant instant) {
-		return MsFactoryHolder.INSTANCE.create(instant);
-	}
-
-	/**
-	 * Create a KSUID with microsecond precision (JDK 9+).
-	 * 
-	 * @param instant an instant
-	 * @return a KSUID
-	 */
-	public static Ksuid getKsuidUs(Instant instant) {
-		return UsFactoryHolder.INSTANCE.create(instant);
-	}
-
-	/**
-	 * Create a KSUID with nanosecond precision (JDK 9+).
-	 * 
-	 * Check if the target runtime provides nanosecond precision:
-	 * {@code System.out.println(Instant.now().getNano());}
-	 * 
-	 * Read: https://stackoverflow.com/questions/1712205
-	 * 
-	 * @param instant an instant
-	 * @return a KSUID
-	 */
-	public static Ksuid getKsuidNs(Instant instant) {
-		return NsFactoryHolder.INSTANCE.create(instant);
+	public static Ksuid getSubsecondKsuid(Instant instant) {
+		return SubsecondHolder.INSTANCE.create(instant);
 	}
 
 	/**
@@ -146,26 +104,18 @@ public final class KsuidCreator {
 	 * @return a KSUID
 	 */
 	public static Ksuid getMonotonicKsuid(Instant instant) {
-		return MonotonicFactoryHolder.INSTANCE.create(instant);
+		return MonotonicHolder.INSTANCE.create(instant);
 	}
 
 	private static class FactoryHolder {
 		static final KsuidFactory INSTANCE = KsuidFactory.newInstance();
 	}
 
-	private static class MsFactoryHolder {
-		static final KsuidFactory INSTANCE = KsuidFactory.newMsInstance();
+	private static class SubsecondHolder {
+		static final KsuidFactory INSTANCE = KsuidFactory.newSubsecondInstance();
 	}
 
-	private static class UsFactoryHolder {
-		static final KsuidFactory INSTANCE = KsuidFactory.newUsInstance();
-	}
-
-	private static class NsFactoryHolder {
-		static final KsuidFactory INSTANCE = KsuidFactory.newNsInstance();
-	}
-
-	private static class MonotonicFactoryHolder {
+	private static class MonotonicHolder {
 		static final KsuidFactory INSTANCE = KsuidFactory.newMonotonicInstance();
 	}
 }

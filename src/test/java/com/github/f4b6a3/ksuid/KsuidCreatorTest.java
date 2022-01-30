@@ -80,7 +80,7 @@ public class KsuidCreatorTest {
 	}
 
 	private static final String[][] SAMPLES_BASE_62 = { //
-			{ "56121437c20570add70d44056ba40f4d65158cc7", "CHPnNgpERZmpYgSurIFDXNuNvDL" }, //
+			{ "0669F7EFB5A1CD34B5F99D1154FB6853345C9735", "0ujtsYcgvSTl8PAuAdqWYSMnLOv" }, //
 			{ "fe01a5cf2993b68f5e0dae08993f2df96ea42c9d", "aF2o4ddkdSUazmTbD13alAfDicH" }, //
 			{ "3bbb3cbfb51d7cb7222c297af7722ca608360d25", "8WPK8cCnxGHheCGUMuhtMn5zqXF" }, //
 			{ "215ca8d6b60063886d087a3eed50abdb467a6543", "4l8HH6iB4DU30Me5ZNaDyZOGfAJ" }, //

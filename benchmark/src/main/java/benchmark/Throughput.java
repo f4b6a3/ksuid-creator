@@ -52,6 +52,16 @@ public class Throughput {
 	}
 
 	@Benchmark
+	public Ksuid KsuidCreator_getSubsecondKsuid() {
+		return KsuidCreator.getSubsecondKsuid();
+	}
+
+	@Benchmark
+	public String KsuidCreator_getSubsecondKsuid_toString() {
+		return KsuidCreator.getSubsecondKsuid().toString();
+	}
+
+	@Benchmark
 	public Ksuid KsuidCreator_getMonotonicKsuid() {
 		return KsuidCreator.getMonotonicKsuid();
 	}

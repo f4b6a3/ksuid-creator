@@ -12,6 +12,8 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class KsuidFactoryTest {
 
@@ -49,47 +51,13 @@ public class KsuidFactoryTest {
 	}
 
 	@Test
-	public void testGetKsuidMs() {
+	public void testGetSubsecondKsuid() {
 		Ksuid[] list = new Ksuid[DEFAULT_LOOP_MAX];
 
 		long startTime = System.currentTimeMillis() / 1000;
 
 		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
-			list[i] = KsuidCreator.getKsuidMs();
-		}
-
-		long endTime = System.currentTimeMillis() / 1000;
-
-		assertTrue(checkNullOrInvalid(list));
-		assertTrue(checkUniqueness(list));
-		assertTrue(checkCreationTime(list, startTime, endTime));
-	}
-
-	@Test
-	public void testGetKsuidUs() {
-		Ksuid[] list = new Ksuid[DEFAULT_LOOP_MAX];
-
-		long startTime = System.currentTimeMillis() / 1000;
-
-		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
-			list[i] = KsuidCreator.getKsuidUs();
-		}
-
-		long endTime = System.currentTimeMillis() / 1000;
-
-		assertTrue(checkNullOrInvalid(list));
-		assertTrue(checkUniqueness(list));
-		assertTrue(checkCreationTime(list, startTime, endTime));
-	}
-
-	@Test
-	public void testGetKsuidNs() {
-		Ksuid[] list = new Ksuid[DEFAULT_LOOP_MAX];
-
-		long startTime = System.currentTimeMillis() / 1000;
-
-		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
-			list[i] = KsuidCreator.getKsuidNs();
+			list[i] = KsuidCreator.getSubsecondKsuid();
 		}
 
 		long endTime = System.currentTimeMillis() / 1000;
@@ -192,12 +160,26 @@ public class KsuidFactoryTest {
 	}
 
 	@Test
-	public void testGetKsuidTimeMs() {
+	public void testGetSubsecondKsuidTime() {
+		for (int i = 0; i < 100; i++) {
+			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
+			Ksuid ksuid = KsuidCreator.getSubsecondKsuid(Instant.ofEpochSecond(seconds));
+			assertEquals(seconds, ksuid.getTime());
+		}
+	}
+
+	@Test
+	public void testGetSubsecondKsuidMillisecond() {
+
+		Supplier<byte[]> supplier = KsuidFactory.getRandomSupplier(new Random());
+		Function<Instant, byte[]> function = KsuidFactory.getMillisecondFunction(supplier);
+		KsuidFactory factory = new KsuidFactory(function);
+
 		for (int i = 0; i < 100; i++) {
 			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
 			int ms = (RANDOM.nextInt() & 0x7fffffff) % 1000;
 
-			Ksuid ksuid = KsuidCreator.getKsuidMs(Instant.ofEpochSecond(seconds).plusMillis(ms));
+			Ksuid ksuid = factory.create(Instant.ofEpochSecond(seconds).plusNanos(ms * 1000000));
 			assertEquals(seconds, ksuid.getTime());
 
 			byte[] payload = ksuid.getPayload();
@@ -207,12 +189,17 @@ public class KsuidFactoryTest {
 	}
 
 	@Test
-	public void testGetKsuidTimeUs() {
+	public void testGetSubsecondKsuidMicrosecond() {
+
+		Supplier<byte[]> supplier = KsuidFactory.getRandomSupplier(new Random());
+		Function<Instant, byte[]> function = KsuidFactory.getMicrosecondFunction(supplier);
+		KsuidFactory factory = new KsuidFactory(function);
+
 		for (int i = 0; i < 100; i++) {
 			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
 			int us = (RANDOM.nextInt() & 0x7fffffff) % 1_000_000;
 
-			Ksuid ksuid = KsuidCreator.getKsuidUs(Instant.ofEpochSecond(seconds).plusNanos(us * 1000));
+			Ksuid ksuid = factory.create(Instant.ofEpochSecond(seconds).plusNanos(us * 1000));
 			assertEquals(seconds, ksuid.getTime());
 
 			byte[] payload = ksuid.getPayload();
@@ -222,12 +209,17 @@ public class KsuidFactoryTest {
 	}
 
 	@Test
-	public void testGetKsuidTimeNs() {
+	public void testGetSubsecondKsuidNanosecond() {
+
+		Supplier<byte[]> supplier = KsuidFactory.getRandomSupplier(new Random());
+		Function<Instant, byte[]> function = KsuidFactory.getNanosecondFunction(supplier);
+		KsuidFactory factory = new KsuidFactory(function);
+
 		for (int i = 0; i < 100; i++) {
 			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
 			int ns = (RANDOM.nextInt() & 0x7fffffff) % 1_000_000_000;
 
-			Ksuid ksuid = KsuidCreator.getKsuidNs(Instant.ofEpochSecond(seconds).plusNanos(ns));
+			Ksuid ksuid = factory.create(Instant.ofEpochSecond(seconds).plusNanos(ns));
 			assertEquals(seconds, ksuid.getTime());
 
 			byte[] payload = ksuid.getPayload();
@@ -244,6 +236,62 @@ public class KsuidFactoryTest {
 			Ksuid ksuid = KsuidCreator.getMonotonicKsuid(Instant.ofEpochSecond(seconds));
 			assertEquals(seconds, ksuid.getTime());
 		}
+	}
+
+	@Test
+	public void testGetSubsecondPrecision() {
+
+		int loop = 10;
+		int precision;
+		Supplier<Instant> supplier;
+
+		for (int i = 0; i < loop; i++) {
+			supplier = getInstantSupplier(KsuidFactory.PRECISION_MILLISECOND);
+			precision = KsuidFactory.getSubsecondPrecision(supplier);
+			assertEquals(KsuidFactory.PRECISION_MILLISECOND, precision);
+		}
+
+		for (int i = 0; i < loop; i++) {
+			supplier = getInstantSupplier(KsuidFactory.PRECISION_MICROSECOND);
+			precision = KsuidFactory.getSubsecondPrecision(supplier);
+			assertEquals(KsuidFactory.PRECISION_MICROSECOND, precision);
+		}
+
+		for (int i = 0; i < loop; i++) {
+			supplier = getInstantSupplier(KsuidFactory.PRECISION_NANOSECOND);
+			precision = KsuidFactory.getSubsecondPrecision(supplier);
+			assertEquals(KsuidFactory.PRECISION_NANOSECOND, precision);
+		}
+	}
+
+	private Supplier<Instant> getInstantSupplier(int precision) {
+
+		final int divisor;
+
+		switch (precision) {
+		case KsuidFactory.PRECISION_MILLISECOND: // millisecond
+			divisor = 1_000_000;
+			break;
+		case KsuidFactory.PRECISION_MICROSECOND: // microsecond
+			divisor = 1_000;
+			break;
+		case KsuidFactory.PRECISION_NANOSECOND: // nanosecond
+			divisor = 1;
+			break;
+		default:
+			divisor = 1;
+			break;
+		}
+
+		return () -> {
+
+			long second = System.currentTimeMillis() / 1000;
+			long random = RANDOM.nextInt(1_000_000_000);
+			long adjust = random - (random % divisor);
+
+			// return an instant with a custom precision
+			return Instant.ofEpochSecond(second, adjust);
+		};
 	}
 
 	protected static class TestThread extends Thread {

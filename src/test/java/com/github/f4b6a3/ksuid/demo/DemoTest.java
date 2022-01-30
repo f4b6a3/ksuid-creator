@@ -18,11 +18,19 @@ public class DemoTest {
 		}
 
 		System.out.println(HORIZONTAL_LINE);
-		System.out.println("### KSUID ns");
+		System.out.println("### Subsecond KSUID");
 		System.out.println(HORIZONTAL_LINE);
 
 		for (int i = 0; i < max; i++) {
-			System.out.println(KsuidCreator.getKsuidNs());
+			System.out.println(KsuidCreator.getSubsecondKsuid());
+		}
+
+		System.out.println(HORIZONTAL_LINE);
+		System.out.println("### Monotonic KSUID");
+		System.out.println(HORIZONTAL_LINE);
+
+		for (int i = 0; i < max; i++) {
+			System.out.println(KsuidCreator.getMonotonicKsuid());
 		}
 	}
 
