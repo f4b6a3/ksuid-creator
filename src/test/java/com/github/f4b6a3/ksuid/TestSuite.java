@@ -3,8 +3,6 @@ package com.github.f4b6a3.ksuid;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import com.github.f4b6a3.ksuid.factory.KsuidFactoryTest;
-
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	KsuidFactoryTest.class,

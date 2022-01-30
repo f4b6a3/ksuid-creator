@@ -1,4 +1,4 @@
-package com.github.f4b6a3.ksuid.factory;
+package com.github.f4b6a3.ksuid;
 
 import org.junit.Test;
 

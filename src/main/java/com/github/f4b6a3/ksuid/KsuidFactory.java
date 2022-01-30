@@ -187,15 +187,15 @@ public final class KsuidFactory {
 	}
 
 	public static KsuidFactory newMonotonicInstance() {
-		return new KsuidFactory(new MonotonicKsuidFunction());
+		return new KsuidFactory(new MonotonicFunction());
 	}
 
 	public static KsuidFactory newMonotonicInstance(Random random) {
-		return new KsuidFactory(new MonotonicKsuidFunction(random));
+		return new KsuidFactory(new MonotonicFunction(random));
 	}
 
 	public static KsuidFactory newMonotonicInstance(Supplier<byte[]> randomSupplier) {
-		return new KsuidFactory(new MonotonicKsuidFunction(randomSupplier));
+		return new KsuidFactory(new MonotonicFunction(randomSupplier));
 	}
 
 	/**
@@ -386,7 +386,7 @@ public final class KsuidFactory {
 	/**
 	 * Function that creates Monotonic KSUIDs.
 	 */
-	protected static final class MonotonicKsuidFunction implements Function<Instant, Ksuid> {
+	protected static final class MonotonicFunction implements Function<Instant, Ksuid> {
 
 		private long lastSeconds = -1;
 		private Ksuid lastKsuid = null;
@@ -394,15 +394,15 @@ public final class KsuidFactory {
 		// it must return an array of 16 bytes
 		private Supplier<byte[]> randomSupplier;
 
-		public MonotonicKsuidFunction() {
+		public MonotonicFunction() {
 			this(new SecureRandom());
 		}
 
-		public MonotonicKsuidFunction(Random random) {
+		public MonotonicFunction(Random random) {
 			this(getRandomSupplier(random));
 		}
 
-		public MonotonicKsuidFunction(Supplier<byte[]> randomSupplier) {
+		public MonotonicFunction(Supplier<byte[]> randomSupplier) {
 			this.randomSupplier = randomSupplier;
 		}
 
@@ -441,4 +441,5 @@ public final class KsuidFactory {
 			return payload;
 		};
 	}
+
 }
