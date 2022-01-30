@@ -131,7 +131,9 @@ Sequence of Sub-second KSUIDs:
 
 The payload is incremented by 1 whenever the current second is equal to the previous one. But when the current second is different, the payload changes to another random value.
 
-This KSUID implementation is inspired on [Monotonic ULID](https://github.com/ulid/spec). It's main advantage is generation speed.
+It's like Segment's [`sequence.go`](https://github.com/segmentio/ksuid/blob/master/sequence.go) generator, which generates sequential KSUIDs, but there are two differences. You must pass a seed to `sequence.go` generator. In Monotonic KSUID, the seed changes every second. Since the seed changes every second, there is no limit to the number of KSUIDs a single seed can generate.
+
+This KSUID implementation is derived from [Monotonic ULID](https://github.com/ulid/spec). Its main advantage is the generation speed.
 
 ```java
 // Create a Monotonic KSUID
