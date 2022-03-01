@@ -12,7 +12,7 @@ In summary:
 *   String format is encoded to [base-62](https://en.wikipedia.org/wiki/Base62) (0-9A-Za-z);
 *   String format is URL safe and has no hyphens.
 
-This library contains a good amount of [unit tests](https://github.com/f4b6a3/ksuid-creator/tree/main/src/test/java/com/github/f4b6a3/ksuid). It also has a [micro benchmark](https://github.com/f4b6a3/ksuid-creator/tree/main/benchmark) for you to check if the performance is good for your needs.
+This library contains a good amount of [unit tests](https://github.com/f4b6a3/ksuid-creator/tree/main/src/test/java/com/github/f4b6a3/ksuid). It also has a [micro benchmark](https://github.com/f4b6a3/ksuid-creator/tree/main/benchmark) for you to check if the performance is good enough.
 
 Read the [KSUID release post](https://segment.com/blog/a-brief-history-of-the-uuid).
 
