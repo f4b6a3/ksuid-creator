@@ -2,7 +2,9 @@
 KSUID Creator
 ======================================================
 
-A Java library for generating [KSUIDs](https://segment.com/blog/a-brief-history-of-the-uuid) (K-Sortable Unique Identifier).
+This is a Java implementation of [Segment's K-Sortable Globally Unique Identifiers](https://github.com/segmentio/ksuid).
+
+In summary:
 
 *   Sorted by generation time;
 *   Can be stored as a string of 27 chars;
@@ -10,7 +12,9 @@ A Java library for generating [KSUIDs](https://segment.com/blog/a-brief-history-
 *   String format is encoded to [base-62](https://en.wikipedia.org/wiki/Base62) (0-9A-Za-z);
 *   String format is URL safe and has no hyphens.
 
-Read the [reference implementation](https://github.com/segmentio/ksuid).
+This library contains a good amount of [unit tests](https://github.com/f4b6a3/ksuid-creator/tree/main/src/test/java/com/github/f4b6a3/ksuid). It also has a [micro benchmark](https://github.com/f4b6a3/ksuid-creator/tree/main/benchmark) for you to check if the performance is good for your needs.
+
+Read the [KSUID release post](https://segment.com/blog/a-brief-history-of-the-uuid).
 
 How to Use
 ------------------------------------------------------
@@ -51,16 +55,11 @@ Module and bundle names are the same as the root package name.
 
 ### Segment's KSUID
 
-The Segment's KSUID is a 160 bit long identifier (20 bytes). Its consists of a 32-bit timestamp and a 128-bit randomly generated payload.
+The Segment's KSUID is a 160 bit long identifier (20 bytes). It consists of a 32-bit timestamp and a 128-bit randomly generated payload. Its canonical string representation is 27 characters long.
 
 ```java
 // Create a KSUID
 Ksuid ksuid = KsuidCreator.getKsuid();
-```
-
-```java
-// Create a KSUID with a given instant
-Ksuid ksuid = KsuidCreator.getKsuid(Instant.now());
 ```
 
 Sequence of KSUIDs:
@@ -89,18 +88,15 @@ Sequence of KSUIDs:
 
 ### Sub-second KSUID
 
-A small part of the payload is used for sub-second bits. The number of sub-second bits depends on `Instant.now()` [resolution](https://stackoverflow.com/questions/11452597/precision-vs-accuracy-of-system-nanotime). In JDK-8, the usual resolution is millisecond. In JDK-9+, microsecond.
+The Sub-second KSUID is a variant of Segment's KSUID. A small number of its payload bits are traded for more timestamp bits. Its main advantage is the *precision*.
+
+The number of sub-second bits depends on `Instant.now()` [resolution](https://stackoverflow.com/questions/11452597/precision-vs-accuracy-of-system-nanotime). In JDK-8, the usual resolution is millisecond. In JDK-9+, microsecond.
 
 Three sub-second precisions are supported: millisecond, microsecond, and nanosecond. The precision is detected at runtime.
 
 ```java
 // Create a Sub-second KSUID
 Ksuid ksuid = KsuidCreator.getSubsecondKsuid();
-```
-
-```java
-// Create a Sub-second KSUID with a given instant
-Ksuid ksuid = KsuidCreator.getSubsecondKsuid(Instant.now());
 ```
 
 Sequence of Sub-second KSUIDs:
@@ -129,20 +125,13 @@ Sequence of Sub-second KSUIDs:
 
 ### Monotonic KSUID
 
-The payload is incremented by 1 whenever the current second is equal to the previous one. But when the current second is different, the payload changes to another random value.
+The Monotonic KSUID is another variant of Segment's KSUID. Its payload is incremented by 1 whenever the current second is equal to the previous one. Its main advantage is *speed*.
 
-It's like Segment's [`sequence.go`](https://github.com/segmentio/ksuid/blob/master/sequence.go) generator, which generates sequential KSUIDs, but there are two differences. You must pass a seed to `sequence.go` generator. In Monotonic KSUID, the seed changes every second. Since the seed changes every second, there is no limit to the number of KSUIDs a single seed can generate.
-
-This KSUID implementation is derived from [Monotonic ULID](https://github.com/ulid/spec). Its main advantage is the generation speed.
+This implementation is derived from [Monotonic ULID](https://github.com/ulid/spec). It's like Segment's [`sequence.go`](https://github.com/segmentio/ksuid/blob/master/sequence.go) generator, which generates sequential KSUIDs, but there are two differences. You must pass a seed to `sequence.go` generator. In Monotonic KSUID, the seed is regenerated every second.
 
 ```java
 // Create a Monotonic KSUID
 Ksuid ksuid = KsuidCreator.getMonotonicKsuid();
-```
-
-```java
-// Create a Monotonic KSUID with a given instant
-Ksuid ksuid = KsuidCreator.getMonotonicKsuid(Instant.now());
 ```
 
 Sequence of Monotonic KSUIDs:
@@ -251,12 +240,15 @@ THROUGHPUT (operations/msec)              Mode  Cnt     Score     Error   Units
 --------------------------------------------------------------------------------
 UUID_randomUUID                          thrpt    5  2047,308 ±  37,134  ops/ms
 UUID_randomUUID_toString                 thrpt    5  1154,017 ±  24,987  ops/ms
+-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 KsuidCreator_getKsuid                    thrpt    5  1915,678 ±  14,980  ops/ms
 KsuidCreator_getKsuid_toString           thrpt    5  1011,608 ±  19,371  ops/ms
-KsuidCreator_getMonotonicKsuid           thrpt    5 14486,205 ± 174,146  ops/ms
-KsuidCreator_getMonotonicKsuid_toString  thrpt    5  1904,277 ±  17,993  ops/ms
+-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 KsuidCreator_getSubsecondKsuid           thrpt    5  1918,717 ±  37,391  ops/ms
 KsuidCreator_getSubsecondKsuid_toString  thrpt    5  1010,544 ±  28,785  ops/ms
+-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+KsuidCreator_getMonotonicKsuid           thrpt    5 14486,205 ± 174,146  ops/ms
+KsuidCreator_getMonotonicKsuid_toString  thrpt    5  1904,277 ±  17,993  ops/ms
 --------------------------------------------------------------------------------
 Total time: 00:10:42
 --------------------------------------------------------------------------------
@@ -269,9 +261,13 @@ To execute the benchmark, run `./benchmark/run.sh`.
 Other identifier generators
 ------------------------------------------------------
 
-Check out the other ID generators.
+Check out the other ID generators from the same family:
 
-*   [UUID Creator](https://github.com/f4b6a3/uuid-creator)
-*   [ULID Creator](https://github.com/f4b6a3/ulid-creator)
-*   [TSID Creator](https://github.com/f4b6a3/tsid-creator)
+*   [UUID Creator](https://github.com/f4b6a3/uuid-creator): Universally Unique Identifiers
+*   [ULID Creator](https://github.com/f4b6a3/ulid-creator): Universally Unique Lexicographically Sortable Identifiers
+*   [TSID Creator](https://github.com/f4b6a3/tsid-creator): Time Sortable Identifiers
 
+License
+------------------------------------------------------
+
+This library is Open Source software released under the [MIT license](https://opensource.org/licenses/MIT).
