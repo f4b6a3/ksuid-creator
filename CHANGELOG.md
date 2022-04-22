@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 Nothing unreleaded.
 
+## [3.1.0] - 2022-04-21
+
+Handle clock drift. #12
+
 ## [3.0.0] - 2022-01-30
 
 Implemented KSUID with sub-second precision. #11
@@ -118,7 +122,8 @@ Project created as an alternative Java implementation of [K-Sortable Unique IDen
 -   Added `DefaultRandomGenerator`
 -   Added test cases
 
-[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-3.0.0...HEAD
+[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-3.1.0...HEAD
+[3.1.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-3.0.0...ksuid-creator-3.1.0
 [3.0.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.3.0...ksuid-creator-3.0.0
 [2.3.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.2.0...ksuid-creator-2.3.0
 [2.2.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-2.1.2...ksuid-creator-2.2.0

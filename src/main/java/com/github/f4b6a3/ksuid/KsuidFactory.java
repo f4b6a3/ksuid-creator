@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2021 Fabio Lima
+ * Copyright (c) 2021-2022 Fabio Lima
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 package com.github.f4b6a3.ksuid;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Random;
 import java.util.function.Function;
@@ -35,34 +36,39 @@ import java.util.function.Supplier;
  */
 public final class KsuidFactory {
 
-	// it must return an array of 16 bytes
-	private final Function<Instant, byte[]> payloadFunction;
+	private final Clock clock; // for tests
+	private final Function<Instant, Ksuid> ksuidFunction;
 
 	protected static final int PRECISION_MILLISECOND = 1;
 	protected static final int PRECISION_MICROSECOND = 2;
 	protected static final int PRECISION_NANOSECOND = 3;
 
 	public KsuidFactory() {
-		this(getPayloadFunction(getRandomSupplier(new SecureRandom())));
+		this(new KsuidFunction(getRandomSupplier(null)));
 	}
 
-	protected KsuidFactory(Function<Instant, byte[]> payloadFunction) {
-		this.payloadFunction = payloadFunction;
+	protected KsuidFactory(Function<Instant, Ksuid> ksuidFunction) {
+		this(ksuidFunction, null);
+	}
+
+	protected KsuidFactory(Function<Instant, Ksuid> ksuidFunction, Clock clock) {
+		this.ksuidFunction = ksuidFunction;
+		this.clock = clock != null ? clock : Clock.systemUTC();
 	}
 
 	/**
-	 * Returns a new KSUID factory.
+	 * Returns a new Segment's KSUID factory.
 	 * 
 	 * It is equivalent to {@code new KsuidFactory()}.
 	 * 
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newInstance() {
-		return newInstance(new SecureRandom());
+		return newInstance(getRandomSupplier(null));
 	}
 
 	/**
-	 * Returns a new KSUID factory.
+	 * Returns a new Segment's KSUID factory.
 	 * 
 	 * @param random a {@link Random} generator
 	 * @return {@link KsuidFactory}
@@ -72,26 +78,26 @@ public final class KsuidFactory {
 	}
 
 	/**
-	 * Returns a new KSUID factory.
+	 * Returns a new Segment's KSUID factory.
 	 * 
 	 * @param randomSupplier a random supplier that returns an array of 16 bytes
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newInstance(Supplier<byte[]> randomSupplier) {
-		return new KsuidFactory(getPayloadFunction(randomSupplier));
+		return new KsuidFactory(new KsuidFunction(randomSupplier));
 	}
 
 	/**
-	 * Returns a new KSUID factory with sub-second precision.
+	 * Returns a new Sub-second KSUID factory.
 	 * 
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newSubsecondInstance() {
-		return newSubsecondInstance(new SecureRandom());
+		return newSubsecondInstance(getRandomSupplier(null));
 	}
 
 	/**
-	 * Returns a new KSUID factory with sub-second precision.
+	 * Returns a new Sub-second KSUID factory.
 	 * 
 	 * @param random a {@link Random} generator
 	 * @return {@link KsuidFactory}
@@ -101,7 +107,7 @@ public final class KsuidFactory {
 	}
 
 	/**
-	 * Returns a new KSUID factory with sub-second precision.
+	 * Returns a new Sub-second KSUID factory.
 	 * 
 	 * @param randomSupplier a random supplier that returns an array of 16 bytes
 	 * @return {@link KsuidFactory}
@@ -116,7 +122,7 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newMonotonicInstance() {
-		return newMonotonicInstance(new SecureRandom());
+		return newMonotonicInstance(getRandomSupplier(null));
 	}
 
 	/**
@@ -136,7 +142,18 @@ public final class KsuidFactory {
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newMonotonicInstance(Supplier<byte[]> randomSupplier) {
-		return new KsuidFactory(getMonotonicFunction(randomSupplier));
+		return new KsuidFactory(new MonotonicFunction(randomSupplier));
+	}
+
+	/**
+	 * Returns a new Monotonic KSUID factory.
+	 * 
+	 * @param randomSupplier a random supplier that returns an array of 16 bytes
+	 * @param clock          a custom clock instance for tests
+	 * @return {@link KsuidFactory}
+	 */
+	protected static KsuidFactory newMonotonicInstance(Supplier<byte[]> randomSupplier, Clock clock) {
+		return new KsuidFactory(new MonotonicFunction(randomSupplier), clock);
 	}
 
 	/**
@@ -145,8 +162,7 @@ public final class KsuidFactory {
 	 * @return a KSUID
 	 */
 	public Ksuid create() {
-		final Instant instant = Instant.now();
-		return new Ksuid(instant.getEpochSecond(), payloadFunction.apply(instant));
+		return ksuidFunction.apply(clock.instant());
 	}
 
 	/**
@@ -156,51 +172,69 @@ public final class KsuidFactory {
 	 * @return a KSUID
 	 */
 	public Ksuid create(final Instant instant) {
-		return new Ksuid(instant.getEpochSecond(), payloadFunction.apply(instant));
+		return ksuidFunction.apply(instant);
 	}
 
 	/**
-	 * Returns a random payload function.
-	 * 
-	 * @param randomSupplier a random supplier
-	 * @return a function that returns 16 bytes
+	 * Function that creates Segment's KSUIDs.
 	 */
-	protected static Function<Instant, byte[]> getPayloadFunction(Supplier<byte[]> randomSupplier) {
-		return (final Instant instant) -> {
-			return randomSupplier.get();
-		};
+	protected static final class KsuidFunction implements Function<Instant, Ksuid> {
+
+		// a function that must return 16 bytes
+		private Supplier<byte[]> randomSupplier;
+
+		public KsuidFunction(Supplier<byte[]> randomSupplier) {
+			this.randomSupplier = randomSupplier;
+		}
+
+		@Override
+		public Ksuid apply(final Instant instant) {
+			return new Ksuid(instant.getEpochSecond(), randomSupplier.get());
+		}
 	}
 
 	/**
-	 * Returns a monotonic payload function.
-	 * 
-	 * @param randomSupplier a random supplier
-	 * @return a function that returns 16 bytes
+	 * Function that creates Monotonic KSUIDs.
 	 */
-	protected static Function<Instant, byte[]> getMonotonicFunction(Supplier<byte[]> randomSupplier) {
-		return new Function<Instant, byte[]>() {
+	protected static final class MonotonicFunction implements Function<Instant, Ksuid> {
 
-			private long lastSeconds = -1;
-			private Ksuid lastKsuid = null;
+		private long lastTime;
+		private Ksuid lastKsuid;
 
-			@Override
-			public synchronized byte[] apply(final Instant instant) {
+		// Used to preserve monotonicity when the system clock is
+		// adjusted by NTP after a small clock drift or when the
+		// system clock jumps back by 1 second due to leap second.
+		protected static final long CLOCK_DRIFT_TOLERANCE = 10;
 
-				final long seconds = instant.getEpochSecond();
+		// a function that must return 16 bytes
+		private Supplier<byte[]> randomSupplier;
 
-				if (seconds == lastSeconds) {
-					// increment the previous payload
-					lastKsuid = lastKsuid.increment();
-				} else {
-					// get a brand new random payload
-					byte[] payload = randomSupplier.get();
-					lastKsuid = new Ksuid(seconds, payload);
-				}
+		public MonotonicFunction(Supplier<byte[]> randomSupplier) {
+			this.randomSupplier = randomSupplier;
 
-				lastSeconds = seconds;
-				return lastKsuid.getPayload();
+			// initialize internal state
+			this.lastTime = Instant.now().getEpochSecond();
+			this.lastKsuid = new Ksuid(lastTime, randomSupplier.get());
+		}
+
+		@Override
+		public Ksuid apply(final Instant instant) {
+
+			long time = instant.getEpochSecond();
+
+			// Check if the current time is the same as the previous time or has moved
+			// backwards after a small system clock adjustment or after a leap second.
+			// Drift tolerance = (previous_time - 10s) < current_time <= previous_time
+			if ((time > this.lastTime - CLOCK_DRIFT_TOLERANCE) && (time <= this.lastTime)) {
+				// increment the previous payload
+				lastKsuid = lastKsuid.increment();
+			} else {
+				lastTime = time;
+				lastKsuid = new Ksuid(time, randomSupplier.get());
 			}
-		};
+
+			return new Ksuid(lastKsuid);
+		}
 	}
 
 	/**
@@ -209,31 +243,37 @@ public final class KsuidFactory {
 	 * @param randomSupplier a random supplier
 	 * @return a function that returns 16 bytes
 	 */
-	protected static Function<Instant, byte[]> getSubsecondFunction(Supplier<byte[]> randomSupplier) {
+	protected static Function<Instant, Ksuid> getSubsecondFunction(Supplier<byte[]> randomSupplier) {
 
 		// try to detect the sub-second precision
-		final int precision = getSubsecondPrecision(Instant::now);
+		final int precision = getSubsecondPrecision(Clock.systemUTC());
 
 		switch (precision) {
 		case PRECISION_MILLISECOND:
-			return getMillisecondFunction(randomSupplier);
+			return new MillisecondFunction(randomSupplier);
 		case PRECISION_MICROSECOND:
-			return getMicrosecondFunction(randomSupplier);
+			return new MicrosecondFunction(randomSupplier);
 		case PRECISION_NANOSECOND:
-			return getNanosecondFunction(randomSupplier);
+			return new NanosecondFunction(randomSupplier);
 		default:
-			return getMillisecondFunction(randomSupplier);
+			return new MillisecondFunction(randomSupplier);
 		}
 	}
 
 	/**
-	 * Returns a payload function with MILLISECOND precision.
-	 * 
-	 * @param randomSupplier a random supplier
-	 * @return a function that returns 16 bytes
+	 * Function that creates Sub-second KSUIDs with MILLISECOND precision.
 	 */
-	protected static Function<Instant, byte[]> getMillisecondFunction(Supplier<byte[]> randomSupplier) {
-		return (final Instant instant) -> {
+	protected static final class MillisecondFunction implements Function<Instant, Ksuid> {
+
+		// a function that must return 16 bytes
+		private Supplier<byte[]> randomSupplier;
+
+		public MillisecondFunction(Supplier<byte[]> randomSupplier) {
+			this.randomSupplier = randomSupplier;
+		}
+
+		@Override
+		public Ksuid apply(final Instant instant) {
 
 			// fill the payload with random bytes
 			final byte[] payload = randomSupplier.get();
@@ -244,18 +284,24 @@ public final class KsuidFactory {
 			payload[0] = (byte) ((subsecs >>> 0x08) & 0xff);
 			payload[1] = (byte) ((subsecs >>> 0x00) & 0xff);
 
-			return payload;
-		};
+			return new Ksuid(instant.getEpochSecond(), payload);
+		}
 	}
 
 	/**
-	 * Returns a payload function with MICROSECOND precision.
-	 * 
-	 * @param randomSupplier a random supplier
-	 * @return a function that returns 16 bytes
+	 * Function that creates Sub-second KSUIDs with MICROSECOND precision.
 	 */
-	protected static Function<Instant, byte[]> getMicrosecondFunction(Supplier<byte[]> randomSupplier) {
-		return (final Instant instant) -> {
+	protected static final class MicrosecondFunction implements Function<Instant, Ksuid> {
+
+		// a function that must return 16 bytes
+		private Supplier<byte[]> randomSupplier;
+
+		public MicrosecondFunction(Supplier<byte[]> randomSupplier) {
+			this.randomSupplier = randomSupplier;
+		}
+
+		@Override
+		public Ksuid apply(final Instant instant) {
 
 			// fill the payload with random bytes
 			final byte[] payload = randomSupplier.get();
@@ -267,18 +313,24 @@ public final class KsuidFactory {
 			payload[1] = (byte) ((subsecs >>> 0x08) & 0xff);
 			payload[2] = (byte) ((subsecs >>> 0x00) & 0xff);
 
-			return payload;
-		};
+			return new Ksuid(instant.getEpochSecond(), payload);
+		}
 	}
 
 	/**
-	 * Returns a payload function with NANOSECOND precision.
-	 * 
-	 * @param randomSupplier a random supplier
-	 * @return a function that returns 16 bytes
+	 * Function that creates Sub-second KSUIDs with NANOSECOND precision.
 	 */
-	protected static Function<Instant, byte[]> getNanosecondFunction(Supplier<byte[]> randomSupplier) {
-		return (final Instant instant) -> {
+	protected static final class NanosecondFunction implements Function<Instant, Ksuid> {
+
+		// a function that must return 16 bytes
+		private Supplier<byte[]> randomSupplier;
+
+		public NanosecondFunction(Supplier<byte[]> randomSupplier) {
+			this.randomSupplier = randomSupplier;
+		}
+
+		@Override
+		public Ksuid apply(final Instant instant) {
 
 			// fill the payload with random bytes
 			final byte[] payload = randomSupplier.get();
@@ -291,17 +343,17 @@ public final class KsuidFactory {
 			payload[2] = (byte) ((subsecs >>> 0x08) & 0xff);
 			payload[3] = (byte) ((subsecs >>> 0x00) & 0xff);
 
-			return payload;
-		};
+			return new Ksuid(instant.getEpochSecond(), payload);
+		}
 	}
 
 	/**
 	 * Returns the instant precision detected.
 	 * 
-	 * @param instantSupplier an instant supplier (used for tests).
+	 * @param clock a custom clock instance
 	 * @return the precision
 	 */
-	protected static int getSubsecondPrecision(Supplier<Instant> instantSupplier) {
+	protected static int getSubsecondPrecision(Clock clock) {
 
 		int best = 0;
 		int loop = 3; // the best of 3
@@ -318,7 +370,7 @@ public final class KsuidFactory {
 			}
 
 			int x = 0;
-			int nanosecond = instantSupplier.get().getNano();
+			int nanosecond = clock.instant().getNano();
 
 			if (nanosecond % 1000 != 0) {
 				x = PRECISION_NANOSECOND; // nanosecond
@@ -341,9 +393,10 @@ public final class KsuidFactory {
 	 * @return a function that returns 16 bytes
 	 */
 	protected static Supplier<byte[]> getRandomSupplier(Random random) {
+		Random entropy = random != null ? random : new SecureRandom();
 		return () -> {
 			byte[] payload = new byte[Ksuid.PAYLOAD_BYTES];
-			random.nextBytes(payload);
+			entropy.nextBytes(payload);
 			return payload;
 		};
 	}

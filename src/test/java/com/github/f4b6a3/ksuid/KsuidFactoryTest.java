@@ -8,7 +8,9 @@ import com.github.f4b6a3.ksuid.KsuidFactory;
 
 import static org.junit.Assert.*;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -142,6 +144,52 @@ public class KsuidFactoryTest {
 	}
 
 	@Test
+	public void testGetMonotonicKsuidInParallel() throws InterruptedException {
+
+		Thread[] threads = new Thread[THREAD_TOTAL];
+		TestThread.clearHashSet();
+
+		// Instantiate and start many threads
+		for (int i = 0; i < THREAD_TOTAL; i++) {
+			KsuidFactory factory = KsuidFactory.newMonotonicInstance(new Random());
+			threads[i] = new TestThread(factory, DEFAULT_LOOP_MAX);
+			threads[i].start();
+		}
+
+		// Wait all the threads to finish
+		for (Thread thread : threads) {
+			thread.join();
+		}
+
+		// Check if the quantity of unique KSUID is correct
+		assertEquals(DUPLICATE_UUID_MSG + " " + TestThread.hashSet.size(), (DEFAULT_LOOP_MAX * THREAD_TOTAL),
+				TestThread.hashSet.size());
+	}
+
+	@Test
+	public void testGetSubsecondKsuidInParallel() throws InterruptedException {
+
+		Thread[] threads = new Thread[THREAD_TOTAL];
+		TestThread.clearHashSet();
+
+		// Instantiate and start many threads
+		for (int i = 0; i < THREAD_TOTAL; i++) {
+			KsuidFactory factory = KsuidFactory.newSubsecondInstance(new Random());
+			threads[i] = new TestThread(factory, DEFAULT_LOOP_MAX);
+			threads[i].start();
+		}
+
+		// Wait all the threads to finish
+		for (Thread thread : threads) {
+			thread.join();
+		}
+
+		// Check if the quantity of unique KSUID is correct
+		assertEquals(DUPLICATE_UUID_MSG + " " + TestThread.hashSet.size(), (DEFAULT_LOOP_MAX * THREAD_TOTAL),
+				TestThread.hashSet.size());
+	}
+
+	@Test
 	public void testGetKsuidInstant() {
 		for (int i = 0; i < 100; i++) {
 			long seconds = (RANDOM.nextLong() & 0x00000000ffffffffL) + Ksuid.EPOCH_OFFSET;
@@ -172,7 +220,7 @@ public class KsuidFactoryTest {
 	public void testGetSubsecondKsuidMillisecond() {
 
 		Supplier<byte[]> supplier = KsuidFactory.getRandomSupplier(new Random());
-		Function<Instant, byte[]> function = KsuidFactory.getMillisecondFunction(supplier);
+		Function<Instant, Ksuid> function = new KsuidFactory.MillisecondFunction(supplier);
 		KsuidFactory factory = new KsuidFactory(function);
 
 		for (int i = 0; i < 100; i++) {
@@ -192,7 +240,7 @@ public class KsuidFactoryTest {
 	public void testGetSubsecondKsuidMicrosecond() {
 
 		Supplier<byte[]> supplier = KsuidFactory.getRandomSupplier(new Random());
-		Function<Instant, byte[]> function = KsuidFactory.getMicrosecondFunction(supplier);
+		Function<Instant, Ksuid> function = new KsuidFactory.MicrosecondFunction(supplier);
 		KsuidFactory factory = new KsuidFactory(function);
 
 		for (int i = 0; i < 100; i++) {
@@ -212,7 +260,7 @@ public class KsuidFactoryTest {
 	public void testGetSubsecondKsuidNanosecond() {
 
 		Supplier<byte[]> supplier = KsuidFactory.getRandomSupplier(new Random());
-		Function<Instant, byte[]> function = KsuidFactory.getNanosecondFunction(supplier);
+		Function<Instant, Ksuid> function = new KsuidFactory.NanosecondFunction(supplier);
 		KsuidFactory factory = new KsuidFactory(function);
 
 		for (int i = 0; i < 100; i++) {
@@ -243,39 +291,118 @@ public class KsuidFactoryTest {
 
 		int loop = 10;
 		int precision;
-		Supplier<Instant> supplier;
+		Clock clock;
 
 		for (int i = 0; i < loop; i++) {
-			supplier = getInstantSupplier(KsuidFactory.PRECISION_MILLISECOND);
-			precision = KsuidFactory.getSubsecondPrecision(supplier);
+			clock = getClock(KsuidFactory.PRECISION_MILLISECOND);
+			precision = KsuidFactory.getSubsecondPrecision(clock);
 			assertEquals(KsuidFactory.PRECISION_MILLISECOND, precision);
 		}
 
 		for (int i = 0; i < loop; i++) {
-			supplier = getInstantSupplier(KsuidFactory.PRECISION_MICROSECOND);
-			precision = KsuidFactory.getSubsecondPrecision(supplier);
+			clock = getClock(KsuidFactory.PRECISION_MICROSECOND);
+			precision = KsuidFactory.getSubsecondPrecision(clock);
 			assertEquals(KsuidFactory.PRECISION_MICROSECOND, precision);
 		}
 
 		for (int i = 0; i < loop; i++) {
-			supplier = getInstantSupplier(KsuidFactory.PRECISION_NANOSECOND);
-			precision = KsuidFactory.getSubsecondPrecision(supplier);
+			clock = getClock(KsuidFactory.PRECISION_NANOSECOND);
+			precision = KsuidFactory.getSubsecondPrecision(clock);
 			assertEquals(KsuidFactory.PRECISION_NANOSECOND, precision);
 		}
 	}
 
-	private Supplier<Instant> getInstantSupplier(int precision) {
+	@Test
+	public void testGetMonotonicKsuidAfterClockDrift() {
+
+		long diff = KsuidFactory.MonotonicFunction.CLOCK_DRIFT_TOLERANCE;
+		long time = Instant.parse("2021-12-31T23:59:59.000Z").getEpochSecond();
+		long times[] = { time, time + 0, time + 1, time + 2, time + 3 - diff, time + 4 - diff, time + 5 };
+
+		Clock clock = new Clock() {
+			private int i;
+
+			@Override
+			public Instant instant() {
+				return Instant.ofEpochSecond(times[i++ % times.length]);
+			}
+
+			@Override
+			public ZoneId getZone() {
+				return null;
+			}
+
+			@Override
+			public Clock withZone(ZoneId zone) {
+				return null;
+			}
+		};
+
+		Supplier<byte[]> randomSupplier = KsuidFactory.getRandomSupplier(new Random());
+		KsuidFactory factory = KsuidFactory.newMonotonicInstance(randomSupplier, clock);
+
+		long ms1 = factory.create().getTime(); // time
+		long ms2 = factory.create().getTime(); // time + 0
+		long ms3 = factory.create().getTime(); // time + 1
+		long ms4 = factory.create().getTime(); // time + 2
+		long ms5 = factory.create().getTime(); // time + 3 - 10000 (CLOCK DRIFT)
+		long ms6 = factory.create().getTime(); // time + 4 - 10000 (CLOCK DRIFT)
+		long ms7 = factory.create().getTime(); // time + 5
+		assertEquals(ms1 + 0, ms2); // clock repeats.
+		assertEquals(ms1 + 1, ms3); // clock advanced.
+		assertEquals(ms1 + 2, ms4); // clock advanced.
+		assertEquals(ms1 + 2, ms5); // CLOCK DRIFT! DON'T MOVE BACKWARDS!
+		assertEquals(ms1 + 2, ms6); // CLOCK DRIFT! DON'T MOVE BACKWARDS!
+		assertEquals(ms1 + 5, ms7); // clock advanced.
+	}
+
+	@Test
+	public void testGetMonotonicKsuidAfterLeapSecond() {
+
+		long second = Instant.parse("2021-12-31T23:59:59.000Z").getEpochSecond();
+		long leapSecond = second - 1; // simulate a leap second
+		long times[] = { second, leapSecond };
+
+		Clock clock = new Clock() {
+			private int i;
+
+			@Override
+			public Instant instant() {
+				return Instant.ofEpochSecond(times[i++ % times.length]);
+			}
+
+			@Override
+			public ZoneId getZone() {
+				return null;
+			}
+
+			@Override
+			public Clock withZone(ZoneId zone) {
+				return null;
+			}
+		};
+
+		Supplier<byte[]> randomSupplier = KsuidFactory.getRandomSupplier(new Random());
+		KsuidFactory factory = KsuidFactory.newMonotonicInstance(randomSupplier, clock);
+
+		long ms1 = factory.create().getTime(); // second
+		long ms2 = factory.create().getTime(); // leap second
+
+		assertEquals(ms1, ms2); // LEAP SECOND! DON'T MOVE BACKWARDS!
+	}
+
+	private Clock getClock(int precision) {
 
 		final int divisor;
 
 		switch (precision) {
-		case KsuidFactory.PRECISION_MILLISECOND: // millisecond
+		case KsuidFactory.PRECISION_MILLISECOND:
 			divisor = 1_000_000;
 			break;
-		case KsuidFactory.PRECISION_MICROSECOND: // microsecond
+		case KsuidFactory.PRECISION_MICROSECOND:
 			divisor = 1_000;
 			break;
-		case KsuidFactory.PRECISION_NANOSECOND: // nanosecond
+		case KsuidFactory.PRECISION_NANOSECOND:
 			divisor = 1;
 			break;
 		default:
@@ -283,15 +410,29 @@ public class KsuidFactoryTest {
 			break;
 		}
 
-		return () -> {
+		return new Clock() {
 
-			long second = System.currentTimeMillis() / 1000;
-			long random = RANDOM.nextInt(1_000_000_000);
-			long adjust = random - (random % divisor);
+			@Override
+			public Instant instant() {
+				long second = System.currentTimeMillis() / 1000;
+				long random = RANDOM.nextInt(1_000_000_000);
+				long adjust = random - (random % divisor);
 
-			// return an instant with a custom precision
-			return Instant.ofEpochSecond(second, adjust);
+				// return an instant with a custom precision
+				return Instant.ofEpochSecond(second, adjust);
+			}
+
+			@Override
+			public Clock withZone(ZoneId zone) {
+				return null;
+			}
+
+			@Override
+			public ZoneId getZone() {
+				return null;
+			}
 		};
+
 	}
 
 	protected static class TestThread extends Thread {

@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2021 Fabio Lima
+ * Copyright (c) 2021-2022 Fabio Lima
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -383,6 +383,14 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 		for (int i = PAYLOAD_BYTES - 1; i >= 0; i--) {
 			if (++ksuid.payload[i] != overflow) {
 				break; // stop if did't overflow
+			} else {
+				if (i == 0) {
+					// If the payload component overflows,
+					// increment the time component by 1.
+					// This event is quite rare to occur.
+					final long time = ksuid.getTime() + 1;
+					ksuid = new Ksuid(time, ksuid.getPayload());
+				}
 			}
 		}
 
