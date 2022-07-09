@@ -2,20 +2,22 @@ package com.github.f4b6a3.ksuid;
 
 import org.junit.Test;
 
-import com.github.f4b6a3.ksuid.Ksuid;
-import com.github.f4b6a3.ksuid.KsuidCreator;
-import com.github.f4b6a3.ksuid.KsuidFactory;
-
 import static org.junit.Assert.*;
 
+import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.SplittableRandom;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.IntFunction;
+import java.util.function.LongSupplier;
 
 public class KsuidFactoryTest {
 
@@ -219,8 +221,8 @@ public class KsuidFactoryTest {
 	@Test
 	public void testGetSubsecondKsuidMillisecond() {
 
-		Supplier<byte[]> supplier = KsuidFactory.getRandomSupplier(new Random());
-		Function<Instant, Ksuid> function = new KsuidFactory.MillisecondFunction(supplier);
+		KsuidFactory.IRandom random = new KsuidFactory.LongRandom(() -> new Random().nextLong());
+		Function<Instant, Ksuid> function = new KsuidFactory.MillisecondFunction(random);
 		KsuidFactory factory = new KsuidFactory(function);
 
 		for (int i = 0; i < 100; i++) {
@@ -239,8 +241,8 @@ public class KsuidFactoryTest {
 	@Test
 	public void testGetSubsecondKsuidMicrosecond() {
 
-		Supplier<byte[]> supplier = KsuidFactory.getRandomSupplier(new Random());
-		Function<Instant, Ksuid> function = new KsuidFactory.MicrosecondFunction(supplier);
+		KsuidFactory.IRandom random = new KsuidFactory.LongRandom(() -> new Random().nextLong());
+		Function<Instant, Ksuid> function = new KsuidFactory.MicrosecondFunction(random);
 		KsuidFactory factory = new KsuidFactory(function);
 
 		for (int i = 0; i < 100; i++) {
@@ -259,8 +261,8 @@ public class KsuidFactoryTest {
 	@Test
 	public void testGetSubsecondKsuidNanosecond() {
 
-		Supplier<byte[]> supplier = KsuidFactory.getRandomSupplier(new Random());
-		Function<Instant, Ksuid> function = new KsuidFactory.NanosecondFunction(supplier);
+		KsuidFactory.IRandom random = new KsuidFactory.LongRandom(() -> new Random().nextLong());
+		Function<Instant, Ksuid> function = new KsuidFactory.NanosecondFunction(random);
 		KsuidFactory factory = new KsuidFactory(function);
 
 		for (int i = 0; i < 100; i++) {
@@ -338,8 +340,7 @@ public class KsuidFactoryTest {
 			}
 		};
 
-		Supplier<byte[]> randomSupplier = KsuidFactory.getRandomSupplier(new Random());
-		KsuidFactory factory = KsuidFactory.newMonotonicInstance(randomSupplier, clock);
+		KsuidFactory factory = KsuidFactory.newMonotonicInstance(() -> new Random().nextLong(), clock);
 
 		long ms1 = factory.create().getTime(); // time
 		long ms2 = factory.create().getTime(); // time + 0
@@ -382,8 +383,7 @@ public class KsuidFactoryTest {
 			}
 		};
 
-		Supplier<byte[]> randomSupplier = KsuidFactory.getRandomSupplier(new Random());
-		KsuidFactory factory = KsuidFactory.newMonotonicInstance(randomSupplier, clock);
+		KsuidFactory factory = KsuidFactory.newMonotonicInstance(() -> new Random().nextLong(), clock);
 
 		long ms1 = factory.create().getTime(); // second
 		long ms2 = factory.create().getTime(); // leap second
@@ -457,6 +457,235 @@ public class KsuidFactoryTest {
 				synchronized (hashSet) {
 					hashSet.add(factory.create(time));
 				}
+			}
+		}
+	}
+
+	@Test
+	public void testWithRandom() {
+		{
+			Random random = new Random();
+			KsuidFactory factory = KsuidFactory.newInstance(random);
+			assertNotNull(factory.create());
+		}
+		{
+			SecureRandom random = new SecureRandom();
+			KsuidFactory factory = KsuidFactory.newInstance(random);
+			assertNotNull(factory.create());
+		}
+		{
+			Random random = new Random();
+			KsuidFactory factory = KsuidFactory.newSubsecondInstance(random);
+			assertNotNull(factory.create());
+		}
+		{
+			SecureRandom random = new SecureRandom();
+			KsuidFactory factory = KsuidFactory.newSubsecondInstance(random);
+			assertNotNull(factory.create());
+		}
+		{
+			Random random = new Random();
+			KsuidFactory factory = KsuidFactory.newMonotonicInstance(random);
+			assertNotNull(factory.create());
+		}
+		{
+			SecureRandom random = new SecureRandom();
+			KsuidFactory factory = KsuidFactory.newMonotonicInstance(random);
+			assertNotNull(factory.create());
+		}
+	}
+
+	@Test
+	public void testWithRandomFunction() {
+		{
+			SplittableRandom random = new SplittableRandom();
+			LongSupplier function = () -> random.nextLong();
+			KsuidFactory factory = KsuidFactory.newInstance(function);
+			assertNotNull(factory.create());
+		}
+		{
+			IntFunction<byte[]> function = (length) -> {
+				byte[] bytes = new byte[length];
+				ThreadLocalRandom.current().nextBytes(bytes);
+				return bytes;
+			};
+			KsuidFactory factory = KsuidFactory.newInstance(function);
+			assertNotNull(factory.create());
+		}
+		{
+			SplittableRandom random = new SplittableRandom();
+			LongSupplier function = () -> random.nextLong();
+			KsuidFactory factory = KsuidFactory.newSubsecondInstance(function);
+			assertNotNull(factory.create());
+		}
+		{
+			IntFunction<byte[]> function = (length) -> {
+				byte[] bytes = new byte[length];
+				ThreadLocalRandom.current().nextBytes(bytes);
+				return bytes;
+			};
+			KsuidFactory factory = KsuidFactory.newSubsecondInstance(function);
+			assertNotNull(factory.create());
+		}
+		{
+			SplittableRandom random = new SplittableRandom();
+			LongSupplier function = () -> random.nextLong();
+			KsuidFactory factory = KsuidFactory.newMonotonicInstance(function);
+			assertNotNull(factory.create());
+		}
+		{
+			IntFunction<byte[]> function = (length) -> {
+				byte[] bytes = new byte[length];
+				ThreadLocalRandom.current().nextBytes(bytes);
+				return bytes;
+			};
+			KsuidFactory factory = KsuidFactory.newMonotonicInstance(function);
+			assertNotNull(factory.create());
+		}
+	}
+
+	@Test
+	public void testWithRandomNull() {
+		KsuidFactory factory = KsuidFactory.newInstance((Random) null);
+		assertNotNull(factory.create());
+	}
+
+	@Test
+	public void testWithRandomFunctionNull() {
+		{
+			KsuidFactory factory = KsuidFactory.newInstance((LongSupplier) null);
+			assertNotNull(factory.create());
+		}
+		{
+			KsuidFactory factory = KsuidFactory.newInstance((IntFunction<byte[]>) null);
+			assertNotNull(factory.create());
+		}
+	}
+
+	@Test
+	public void testByteRandomNextLong() {
+
+		for (int i = 0; i < 10; i++) {
+			byte[] bytes = new byte[Long.BYTES];
+			(new Random()).nextBytes(bytes);
+			long number = ByteBuffer.wrap(bytes).getLong();
+			KsuidFactory.IRandom random = new KsuidFactory.ByteRandom((x) -> bytes);
+			assertEquals(number, random.nextLong());
+		}
+
+		for (int i = 0; i < 10; i++) {
+
+			int longs = 10;
+			int size = Long.BYTES * longs;
+
+			byte[] bytes = new byte[size];
+			(new Random()).nextBytes(bytes);
+			ByteBuffer buffer1 = ByteBuffer.wrap(bytes);
+			ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
+
+			KsuidFactory.IRandom random = new KsuidFactory.ByteRandom((x) -> {
+				byte[] octects = new byte[x];
+				buffer1.get(octects);
+				return octects;
+			});
+
+			for (int j = 0; j < longs; j++) {
+				assertEquals(buffer2.getLong(), random.nextLong());
+			}
+		}
+	}
+
+	@Test
+	public void testByteRandomNextBytes() {
+
+		for (int i = 0; i < 10; i++) {
+			byte[] bytes = new byte[Long.BYTES];
+			(new Random()).nextBytes(bytes);
+			KsuidFactory.IRandom random = new KsuidFactory.ByteRandom((x) -> bytes);
+			assertEquals(Arrays.toString(bytes), Arrays.toString(random.nextBytes(Long.BYTES)));
+		}
+
+		for (int i = 0; i < 10; i++) {
+
+			int ints = 10;
+			int size = Long.BYTES * ints;
+
+			byte[] bytes = new byte[size];
+			(new Random()).nextBytes(bytes);
+			ByteBuffer buffer1 = ByteBuffer.wrap(bytes);
+			ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
+
+			KsuidFactory.IRandom random = new KsuidFactory.ByteRandom((x) -> {
+				byte[] octects = new byte[x];
+				buffer1.get(octects);
+				return octects;
+			});
+
+			for (int j = 0; j < ints; j++) {
+				byte[] octects = new byte[Long.BYTES];
+				buffer2.get(octects);
+				assertEquals(Arrays.toString(octects), Arrays.toString(random.nextBytes(Long.BYTES)));
+			}
+		}
+	}
+
+	@Test
+	public void testLogRandomNextLong() {
+
+		for (int i = 0; i < 10; i++) {
+			byte[] bytes = new byte[Long.BYTES];
+			(new Random()).nextBytes(bytes);
+			long number = ByteBuffer.wrap(bytes).getLong();
+			KsuidFactory.IRandom random = new KsuidFactory.LongRandom(() -> number);
+			assertEquals(number, random.nextLong());
+		}
+
+		for (int i = 0; i < 10; i++) {
+
+			int ints = 10;
+			int size = Long.BYTES * ints;
+
+			byte[] bytes = new byte[size];
+			(new Random()).nextBytes(bytes);
+			ByteBuffer buffer1 = ByteBuffer.wrap(bytes);
+			ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
+
+			KsuidFactory.IRandom random = new KsuidFactory.LongRandom(() -> buffer1.getLong());
+
+			for (int j = 0; j < ints; j++) {
+				assertEquals(buffer2.getLong(), random.nextLong());
+			}
+		}
+
+	}
+
+	@Test
+	public void testLogRandomNextBytes() {
+
+		for (int i = 0; i < 10; i++) {
+			byte[] bytes = new byte[Long.BYTES];
+			(new Random()).nextBytes(bytes);
+			long number = ByteBuffer.wrap(bytes).getLong();
+			KsuidFactory.IRandom random = new KsuidFactory.LongRandom(() -> number);
+			assertEquals(Arrays.toString(bytes), Arrays.toString(random.nextBytes(Long.BYTES)));
+		}
+
+		for (int i = 0; i < 10; i++) {
+
+			int ints = 10;
+			int size = Long.BYTES * ints;
+
+			byte[] bytes = new byte[size];
+			(new Random()).nextBytes(bytes);
+			ByteBuffer buffer1 = ByteBuffer.wrap(bytes);
+			ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
+
+			KsuidFactory.IRandom random = new KsuidFactory.LongRandom(() -> buffer1.getLong());
+
+			for (int j = 0; j < ints; j++) {
+				byte[] octects = new byte[Long.BYTES];
+				buffer2.get(octects);
+				assertEquals(Arrays.toString(octects), Arrays.toString(random.nextBytes(Long.BYTES)));
 			}
 		}
 	}

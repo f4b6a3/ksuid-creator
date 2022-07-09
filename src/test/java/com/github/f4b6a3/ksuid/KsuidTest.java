@@ -14,8 +14,6 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.github.f4b6a3.ksuid.Ksuid;
-
 public class KsuidTest {
 
 	private static final int DEFAULT_LOOP_MAX = 1_000;

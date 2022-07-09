@@ -40,7 +40,7 @@ Add these lines to your `pom.xml`.
 <dependency>
   <groupId>com.github.f4b6a3</groupId>
   <artifactId>ksuid-creator</artifactId>
-  <version>3.1.0</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
@@ -215,19 +215,47 @@ Ksuid ksuid = factory.create();
 
 ---
 
-A `KsuidFactory` with `ThreadLocalRandom` inside of a `Supplier<byte[]>`:
+A `KsuidFactory` with `SplittableRandom`:
 
 ```java
-// use a random supplier that returns an array of 16 bytes
-KsuidFactory factory = KsuidFactory.newInstance(() -> {
-    final byte[] bytes = new byte[Ksuid.PAYLOAD_BYTES];
-    ThreadLocalRandom.current().nextBytes(bytes);
-    return bytes;
-});
+// use a random function that returns a long value
+SplittableRandom random = new SplittableRandom();
+KsuidFactory factory = KsuidFactory.newInstance(() -> random.nextLong());
 
 // use the factory
 Ksuid ksuid = factory.create();
 ```
+
+---
+
+A `KsuidFactory` with `RandomGenerator` (JDk 17+):
+
+```java
+// use a random function that returns a long value
+RandomGenerator random = RandomGenerator.getDefault();
+KsuidFactory factory = KsuidFactory.newInstance(() -> random.nextLong());
+
+// use the factory
+Ksuid ksuid = factory.create();
+```
+
+---
+
+A `KsuidFactory` with `ThreadLocalRandom`:
+
+```java
+// use a random function that returns a byte array
+KsuidFactory factory = KsuidFactory.newInstance((length) -> {
+    final byte[] bytes = new byte[length];
+    ThreadLocalRandom.current().nextBytes(bytes);
+    return bytes;
+});
+
+
+// use the factory
+Ksuid ksuid = factory.create();
+```
+
 
 Benchmark
 ------------------------------------------------------

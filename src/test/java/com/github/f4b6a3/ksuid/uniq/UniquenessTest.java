@@ -1,9 +1,11 @@
-package com.github.f4b6a3.ksuid;
+package com.github.f4b6a3.ksuid.uniq;
 
 import java.time.Instant;
 import java.util.HashSet;
 
 import com.github.f4b6a3.ksuid.Ksuid;
+import com.github.f4b6a3.ksuid.KsuidFactory;
+import com.github.f4b6a3.ksuid.TestSuite;
 
 /**
  * 
