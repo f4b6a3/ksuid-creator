@@ -40,7 +40,7 @@ Add these lines to your `pom.xml`.
 <dependency>
   <groupId>com.github.f4b6a3</groupId>
   <artifactId>ksuid-creator</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1</version>
 </dependency>
 ```
 

@@ -323,20 +323,17 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	@Override
 	public boolean equals(Object obj) {
 
-		if (this == obj)
-			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (obj.getClass() != Ksuid.class)
 			return false;
 
-		Ksuid other = (Ksuid) obj;
-
-		if (this.seconds != other.seconds)
+		Ksuid that = (Ksuid) obj;
+		if (this.seconds != that.seconds)
 			return false;
 
 		for (int i = 0; i < PAYLOAD_BYTES; i++) {
-			if (this.payload[i] != other.payload[i]) {
+			if (this.payload[i] != that.payload[i]) {
 				return false;
 			}
 		}
@@ -345,20 +342,24 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	}
 
 	@Override
-	public int compareTo(Ksuid other) {
+	public int compareTo(Ksuid that) {
 
-		// unsigned comparison of seconds
-		if ((this.seconds & INTEGER_MASK) > (other.seconds & INTEGER_MASK)) {
+		// for UNSIGNED comparison
+		final int min = 0x80000000;
+
+		final int a = this.seconds + min;
+		final int b = that.seconds + min;
+
+		if (a > b)
 			return 1;
-		} else if ((this.seconds & INTEGER_MASK) < (other.seconds & INTEGER_MASK)) {
+		else if (a < b)
 			return -1;
-		}
 
-		// unsigned comparison of payload bytes
+		// UNSIGNED comparison of payload bytes
 		for (int i = 0; i < PAYLOAD_BYTES; i++) {
-			if ((this.payload[i] & 0xff) > (other.payload[i] & 0xff)) {
+			if ((this.payload[i] & 0xff) > (that.payload[i] & 0xff)) {
 				return 1;
-			} else if ((this.payload[i] & 0xff) < (other.payload[i] & 0xff)) {
+			} else if ((this.payload[i] & 0xff) < (that.payload[i] & 0xff)) {
 				return -1;
 			}
 		}

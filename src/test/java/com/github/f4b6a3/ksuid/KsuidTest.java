@@ -380,16 +380,65 @@ public class KsuidTest {
 	@Test
 	public void testCompareTo() {
 
+		final int zero = 0;
 		Random random = new Random();
 		byte[] bytes = new byte[Ksuid.KSUID_BYTES];
 
 		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
 
-			random.nextBytes(bytes);
+			bytes = ByteBuffer.allocate(20).putInt(random.nextInt()).putLong(random.nextLong())
+					.putLong(random.nextLong()).array();
 			Ksuid ksuid1 = Ksuid.from(bytes);
 			BigInteger number1 = new BigInteger(1, bytes);
 
-			random.nextBytes(bytes);
+			bytes = ByteBuffer.allocate(20).putInt(random.nextInt()).putLong(random.nextLong())
+					.putLong(random.nextLong()).array();
+			Ksuid ksuid2 = Ksuid.from(bytes);
+			Ksuid ksuid3 = Ksuid.from(bytes);
+			BigInteger number2 = new BigInteger(1, bytes);
+			BigInteger number3 = new BigInteger(1, bytes);
+
+			// compare numerically
+			assertEquals(number1.compareTo(number2) > 0, ksuid1.compareTo(ksuid2) > 0);
+			assertEquals(number1.compareTo(number2) < 0, ksuid1.compareTo(ksuid2) < 0);
+			assertEquals(number2.compareTo(number3) == 0, ksuid2.compareTo(ksuid3) == 0);
+
+			// compare lexicographically
+			assertEquals(number1.compareTo(number2) > 0, ksuid1.toString().compareTo(ksuid2.toString()) > 0);
+			assertEquals(number1.compareTo(number2) < 0, ksuid1.toString().compareTo(ksuid2.toString()) < 0);
+			assertEquals(number2.compareTo(number3) == 0, ksuid2.toString().compareTo(ksuid3.toString()) == 0);
+		}
+
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+
+			bytes = ByteBuffer.allocate(20).putInt(zero).putLong(random.nextLong()).putLong(random.nextLong()).array();
+			Ksuid ksuid1 = Ksuid.from(bytes);
+			BigInteger number1 = new BigInteger(1, bytes);
+
+			bytes = ByteBuffer.allocate(20).putInt(zero).putLong(random.nextLong()).putLong(random.nextLong()).array();
+			Ksuid ksuid2 = Ksuid.from(bytes);
+			Ksuid ksuid3 = Ksuid.from(bytes);
+			BigInteger number2 = new BigInteger(1, bytes);
+			BigInteger number3 = new BigInteger(1, bytes);
+
+			// compare numerically
+			assertEquals(number1.compareTo(number2) > 0, ksuid1.compareTo(ksuid2) > 0);
+			assertEquals(number1.compareTo(number2) < 0, ksuid1.compareTo(ksuid2) < 0);
+			assertEquals(number2.compareTo(number3) == 0, ksuid2.compareTo(ksuid3) == 0);
+
+			// compare lexicographically
+			assertEquals(number1.compareTo(number2) > 0, ksuid1.toString().compareTo(ksuid2.toString()) > 0);
+			assertEquals(number1.compareTo(number2) < 0, ksuid1.toString().compareTo(ksuid2.toString()) < 0);
+			assertEquals(number2.compareTo(number3) == 0, ksuid2.toString().compareTo(ksuid3.toString()) == 0);
+		}
+
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+
+			bytes = ByteBuffer.allocate(20).putInt(zero).putLong(zero).putLong(random.nextLong()).array();
+			Ksuid ksuid1 = Ksuid.from(bytes);
+			BigInteger number1 = new BigInteger(1, bytes);
+
+			bytes = ByteBuffer.allocate(20).putInt(zero).putLong(zero).putLong(random.nextLong()).array();
 			Ksuid ksuid2 = Ksuid.from(bytes);
 			Ksuid ksuid3 = Ksuid.from(bytes);
 			BigInteger number2 = new BigInteger(1, bytes);
