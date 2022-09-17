@@ -12,9 +12,13 @@ In summary:
 *   String format is encoded to [base-62](https://en.wikipedia.org/wiki/Base62) (0-9A-Za-z);
 *   String format is URL safe and has no hyphens.
 
-This library contains a good amount of [unit tests](https://github.com/f4b6a3/ksuid-creator/tree/main/src/test/java/com/github/f4b6a3/ksuid). It also has a [micro benchmark](https://github.com/f4b6a3/ksuid-creator/tree/main/benchmark) for you to check if the performance is good enough.
+This project contains a [micro benchmark](https://github.com/f4b6a3/ksuid-creator/tree/master/benchmark) and a good amount of [unit tests](https://github.com/f4b6a3/ksuid-creator/tree/master/src/test/java/com/github/f4b6a3/ksuid).
 
-Read the [KSUID release post](https://segment.com/blog/a-brief-history-of-the-uuid).
+The jar file can be downloaded directly from [maven.org](https://repo1.maven.org/maven2/com/github/f4b6a3/ksuid-creator/).
+
+Read the [Javadocs](https://javadoc.io/doc/com.github.f4b6a3/ksuid-creator).
+
+Also read the [KSUID release post](https://segment.com/blog/a-brief-history-of-the-uuid).
 
 How to Use
 ------------------------------------------------------
@@ -40,7 +44,7 @@ Add these lines to your `pom.xml`.
 <dependency>
   <groupId>com.github.f4b6a3</groupId>
   <artifactId>ksuid-creator</artifactId>
-  <version>4.0.1</version>
+  <version>4.0.2</version>
 </dependency>
 ```
 
@@ -127,7 +131,7 @@ Sequence of Sub-second KSUIDs:
 
 The Monotonic KSUID is another variant of Segment's KSUID. Its payload is incremented by 1 whenever the current second is equal to the previous one. Its main advantage is *speed*.
 
-This implementation is derived from [Monotonic ULID](https://github.com/ulid/spec). It's like Segment's [`sequence.go`](https://github.com/segmentio/ksuid/blob/master/sequence.go) generator, which generates sequential KSUIDs, but there are two differences. You must pass a seed to `sequence.go` generator. In Monotonic KSUID, the seed is regenerated every second.
+This implementation is derived from [Monotonic ULID](https://github.com/ulid/spec). It's like Segment's [`sequence.go`](https://github.com/segmentio/ksuid/blob/master/sequence.go) generator, which generates sequential KSUIDs, but there's a difference. You must pass a seed to `sequence.go` generator. In Monotonic KSUID, the seed is regenerated every second.
 
 ```java
 // Create a Monotonic KSUID
@@ -260,29 +264,29 @@ Ksuid ksuid = factory.create();
 Benchmark
 ------------------------------------------------------
 
-This section shows benchmarks comparing `KsuidCreator` to `java.util.UUID`.
+This section shows benchmarks comparing `KsuidCreator` to `UUID.randomUUID()`.
 
 ```
---------------------------------------------------------------------------------
-THROUGHPUT (operations/msec)              Mode  Cnt     Score     Error   Units
---------------------------------------------------------------------------------
-UUID_randomUUID                          thrpt    5  2047,308 ±  37,134  ops/ms
-UUID_randomUUID_toString                 thrpt    5  1154,017 ±  24,987  ops/ms
+---------------------------------------------------------------------------------
+THROUGHPUT (operations/msec)              Mode  Cnt     Score      Error   Units
+---------------------------------------------------------------------------------
+UUID_randomUUID                          thrpt    5   3387,205 ±  10,224  ops/ms
+UUID_randomUUID_toString                 thrpt    5   2810,942 ±  58,598  ops/ms
 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-KsuidCreator_getKsuid                    thrpt    5  1915,678 ±  14,980  ops/ms
-KsuidCreator_getKsuid_toString           thrpt    5  1011,608 ±  19,371  ops/ms
+KsuidCreator_getKsuid                    thrpt    5   2932,173 ±  59,416  ops/ms
+KsuidCreator_getKsuid_toString           thrpt    5   1626,184 ±  66,695  ops/ms
 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-KsuidCreator_getSubsecondKsuid           thrpt    5  1918,717 ±  37,391  ops/ms
-KsuidCreator_getSubsecondKsuid_toString  thrpt    5  1010,544 ±  28,785  ops/ms
+KsuidCreator_getSubsecondKsuid           thrpt    5   2963,775 ±  38,594  ops/ms
+KsuidCreator_getSubsecondKsuid_toString  thrpt    5   1550,485 ± 124,456  ops/ms
 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-KsuidCreator_getMonotonicKsuid           thrpt    5 14486,205 ± 174,146  ops/ms
-KsuidCreator_getMonotonicKsuid_toString  thrpt    5  1904,277 ±  17,993  ops/ms
---------------------------------------------------------------------------------
-Total time: 00:10:42
---------------------------------------------------------------------------------
+KsuidCreator_getMonotonicKsuid           thrpt    5  16123,933 ± 226,742  ops/ms
+KsuidCreator_getMonotonicKsuid_toString  thrpt    5   3020,113 ±  56,734  ops/ms
+---------------------------------------------------------------------------------
+Total time: 00:02:41
+---------------------------------------------------------------------------------
 ```
 
-System: JVM 8, Ubuntu 20.04, CPU i5-3330, 8G RAM.
+System: CPU i7-8565U, 16G RAM, Ubuntu 22.04, JVM 11, rng-tools installed.
 
 To execute the benchmark, run `./benchmark/run.sh`.
 
@@ -299,3 +303,4 @@ License
 ------------------------------------------------------
 
 This library is Open Source software released under the [MIT license](https://opensource.org/licenses/MIT).
+

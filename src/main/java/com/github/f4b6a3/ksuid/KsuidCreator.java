@@ -27,7 +27,10 @@ package com.github.f4b6a3.ksuid;
 import java.time.Instant;
 
 /**
- * A class for generating KSUIDs.
+ * A class that generates KSUIDs.
+ * <p>
+ * All 3 types of KSUID can be easily created by this generator, i.e.
+ * non-monotonic (Segment's), monotonic and sub-second.
  */
 public final class KsuidCreator {
 
@@ -35,7 +38,7 @@ public final class KsuidCreator {
 	}
 
 	/**
-	 * Create a Segment's KSUID.
+	 * Returns a Segment's KSUID.
 	 * 
 	 * @return a KSUID
 	 */
@@ -44,8 +47,8 @@ public final class KsuidCreator {
 	}
 
 	/**
-	 * Create a KSUID with sub-second precision.
-	 * 
+	 * Returns a KSUID with sub-second precision.
+	 * <p>
 	 * Three sub-second precisions are supported: millisecond, microsecond, and
 	 * nanosecond. The precision is detected at runtime.
 	 * 
@@ -56,10 +59,8 @@ public final class KsuidCreator {
 	}
 
 	/**
-	 * Create a Monotonic KSUID.
-	 * 
-	 * The payload is reset to a new value whenever the second changes.
-	 * 
+	 * Returns a Monotonic KSUID.
+	 * <p>
 	 * If more than one KSUID is generated within the same second, the payload is
 	 * incremented by one.
 	 * 
@@ -70,7 +71,7 @@ public final class KsuidCreator {
 	}
 
 	/**
-	 * Create a Segment's KSUID.
+	 * Returns a Segment's KSUID.
 	 * 
 	 * @param instant an instant
 	 * @return a KSUID
@@ -80,8 +81,8 @@ public final class KsuidCreator {
 	}
 
 	/**
-	 * Create a KSUID with sub-second precision.
-	 * 
+	 * Returns a KSUID with sub-second precision.
+	 * <p>
 	 * Three sub-second precisions are supported: millisecond, microsecond, and
 	 * nanosecond. The precision is detected at runtime.
 	 * 
@@ -93,10 +94,8 @@ public final class KsuidCreator {
 	}
 
 	/**
-	 * Create a Monotonic KSUID.
-	 * 
-	 * The payload is reset to a new value whenever the second changes.
-	 * 
+	 * Returns a Monotonic KSUID.
+	 * <p>
 	 * If more than one KSUID is generated within the same second, the payload is
 	 * incremented by one.
 	 * 
