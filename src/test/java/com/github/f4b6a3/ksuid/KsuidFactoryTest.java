@@ -53,6 +53,23 @@ public class KsuidFactoryTest {
 		assertTrue(checkUniqueness(list));
 		assertTrue(checkCreationTime(list, startTime, endTime));
 	}
+	
+	@Test
+	public void testGetFastKsuid() {
+		Ksuid[] list = new Ksuid[DEFAULT_LOOP_MAX];
+
+		long startTime = System.currentTimeMillis() / 1000;
+
+		for (int i = 0; i < DEFAULT_LOOP_MAX; i++) {
+			list[i] = Ksuid.fast();
+		}
+
+		long endTime = System.currentTimeMillis() / 1000;
+
+		assertTrue(checkNullOrInvalid(list));
+		assertTrue(checkUniqueness(list));
+		assertTrue(checkCreationTime(list, startTime, endTime));
+	}
 
 	@Test
 	public void testGetSubsecondKsuid() {

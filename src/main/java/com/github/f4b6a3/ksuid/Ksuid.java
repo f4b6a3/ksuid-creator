@@ -25,7 +25,9 @@
 package com.github.f4b6a3.ksuid;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.time.Instant;
+import java.util.SplittableRandom;
 
 /**
  * A class that represents KSUIDs.
@@ -172,6 +174,32 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 			this.payload[j + 2] = (byte) ((ints[i] >>> 0x08) & 0xff);
 			this.payload[j + 3] = (byte) ((ints[i] >>> 0x00) & 0xff);
 		}
+	}
+
+	/**
+	 * Returns a fast new KSUID.
+	 * <p>
+	 * This static method is a quick alternative to {@link KsuidCreator#getKsuid()}.
+	 * <p>
+	 * It employs {@link SplittableRandom} which works very well, although not
+	 * cryptographically strong.
+	 * <p>
+	 * Security-sensitive applications that require a cryptographically secure
+	 * pseudo-random generator should use {@link KsuidCreator#getKsuid()}.
+	 * 
+	 * @return a KSUID
+	 * @see {@link SplittableRandom}
+	 * @since 4.1.0
+	 */
+	public static Ksuid fast() {
+
+		final SplittableRandom random = new SplittableRandom();
+		final ByteBuffer buffer = ByteBuffer.allocate(Ksuid.PAYLOAD_BYTES);
+
+		final long seconds = Instant.now().getEpochSecond();
+		final byte[] payload = buffer.putLong(random.nextLong()).putLong(random.nextLong()).array();
+
+		return new Ksuid(seconds, payload);
 	}
 
 	/**

@@ -42,6 +42,16 @@ public class Throughput {
 	/* KSUID */
 
 	@Benchmark
+	public Ksuid Ksuid_fast() {
+		return Ksuid.fast();
+	}
+
+	@Benchmark
+	public String Ksuid_fast_toString() {
+		return Ksuid.fast().toString();
+	}
+
+	@Benchmark
 	public Ksuid KsuidCreator_getKsuid() {
 		return KsuidCreator.getKsuid();
 	}

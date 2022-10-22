@@ -44,7 +44,7 @@ Add these lines to your `pom.xml`.
 <dependency>
   <groupId>com.github.f4b6a3</groupId>
   <artifactId>ksuid-creator</artifactId>
-  <version>4.0.2</version>
+  <version>4.1.0</version>
 </dependency>
 ```
 
@@ -165,6 +165,12 @@ Sequence of Monotonic KSUIDs:
 
 ### More Examples
 
+Create a quick KSUID:
+
+```java
+Ksuid ksuid = Ksuid.fast();
+```
+
 ---
 
 Create a KSUID from a canonical string (27 chars, base-62):
@@ -270,19 +276,22 @@ This section shows benchmarks comparing `KsuidCreator` to `UUID.randomUUID()`.
 ---------------------------------------------------------------------------------
 THROUGHPUT (operations/msec)              Mode  Cnt     Score      Error   Units
 ---------------------------------------------------------------------------------
-UUID_randomUUID                          thrpt    5   3387,205 ±  10,224  ops/ms
-UUID_randomUUID_toString                 thrpt    5   2810,942 ±  58,598  ops/ms
+UUID_randomUUID                          thrpt    5   3387.205 ±  10.224  ops/ms (1.00)
+UUID_randomUUID_toString                 thrpt    5   2810.942 ±  58.598  ops/ms
 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-KsuidCreator_getKsuid                    thrpt    5   2932,173 ±  59,416  ops/ms
-KsuidCreator_getKsuid_toString           thrpt    5   1626,184 ±  66,695  ops/ms
+Ksuid_fast                               thrpt    5  19777.514 ± 998.524  ops/ms (5.84)
+Ksuid_fast_toString                      thrpt    5   2998.873 ± 192.978  ops/ms
 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-KsuidCreator_getSubsecondKsuid           thrpt    5   2963,775 ±  38,594  ops/ms
-KsuidCreator_getSubsecondKsuid_toString  thrpt    5   1550,485 ± 124,456  ops/ms
+KsuidCreator_getKsuid                    thrpt    5   2932.173 ±  59.416  ops/ms (0.87)
+KsuidCreator_getKsuid_toString           thrpt    5   1626.184 ±  66.695  ops/ms
 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-KsuidCreator_getMonotonicKsuid           thrpt    5  16123,933 ± 226,742  ops/ms
-KsuidCreator_getMonotonicKsuid_toString  thrpt    5   3020,113 ±  56,734  ops/ms
+KsuidCreator_getSubsecondKsuid           thrpt    5   2963.775 ±  38.594  ops/ms (0.87)
+KsuidCreator_getSubsecondKsuid_toString  thrpt    5   1550.485 ± 124.456  ops/ms
+-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+KsuidCreator_getMonotonicKsuid           thrpt    5  16123.933 ± 226.742  ops/ms (4.76)
+KsuidCreator_getMonotonicKsuid_toString  thrpt    5   3020.113 ±  56.734  ops/ms
 ---------------------------------------------------------------------------------
-Total time: 00:02:41
+Total time: 00:03:22
 ---------------------------------------------------------------------------------
 ```
 
