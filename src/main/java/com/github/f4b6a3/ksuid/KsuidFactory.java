@@ -31,6 +31,7 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 /**
  * A class that actually generates KSUIDs.
@@ -52,7 +53,7 @@ import java.util.function.LongSupplier;
  */
 public final class KsuidFactory {
 
-	private final Clock clock; // for tests
+	private final Supplier<Instant> clock; // for tests
 	private final Function<Instant, Ksuid> ksuidFunction;
 
 	static final int PRECISION_MILLISECOND = 1;
@@ -71,12 +72,17 @@ public final class KsuidFactory {
 	}
 
 	KsuidFactory(Function<Instant, Ksuid> ksuidFunction) {
-		this(ksuidFunction, null);
+		this(ksuidFunction, (Clock) null);
 	}
 
 	KsuidFactory(Function<Instant, Ksuid> ksuidFunction, Clock clock) {
 		this.ksuidFunction = ksuidFunction;
-		this.clock = clock != null ? clock : Clock.systemUTC();
+		this.clock = clock != null ? clock::instant : () -> Clock.systemUTC().instant();
+	}
+
+	KsuidFactory(Function<Instant, Ksuid> ksuidFunction, Supplier<Instant> clock) {
+		this.ksuidFunction = ksuidFunction;
+		this.clock = clock != null ? clock : () -> Clock.systemUTC().instant();
 	}
 
 	/**
@@ -224,6 +230,17 @@ public final class KsuidFactory {
 
 	/**
 	 * Returns a new Monotonic KSUID factory.
+	 *
+	 * @param random a {@link Random} generator
+	 * @param clock an {@link Instant} supplier
+	 * @return {@link KsuidFactory}
+	 */
+	public static KsuidFactory newMonotonicInstance(Random random, Supplier<Instant> clock) {
+		return new KsuidFactory(new MonotonicFunction(IRandom.newInstance(random)), clock);
+	}
+
+	/**
+	 * Returns a new Monotonic KSUID factory.
 	 * 
 	 * @param randomFunction a random function that returns a long value
 	 * @return {@link KsuidFactory}
@@ -234,12 +251,34 @@ public final class KsuidFactory {
 
 	/**
 	 * Returns a new Monotonic KSUID factory.
+	 *
+	 * @param randomFunction a random function that returns a long value
+	 * @param clock an {@link Instant} supplier
+	 * @return {@link KsuidFactory}
+	 */
+	public static KsuidFactory newMonotonicInstance(LongSupplier randomFunction, Supplier<Instant> clock) {
+		return new KsuidFactory(new MonotonicFunction(IRandom.newInstance(randomFunction)), clock);
+	}
+
+	/**
+	 * Returns a new Monotonic KSUID factory.
 	 * 
 	 * @param randomFunction a random function that returns a byte array
 	 * @return {@link KsuidFactory}
 	 */
 	public static KsuidFactory newMonotonicInstance(IntFunction<byte[]> randomFunction) {
 		return new KsuidFactory(new MonotonicFunction(IRandom.newInstance(randomFunction)));
+	}
+
+	/**
+	 * Returns a new Monotonic KSUID factory.
+	 *
+	 * @param randomFunction a random function that returns a byte array
+	 * @param clock an {@link Instant} supplier
+	 * @return {@link KsuidFactory}
+	 */
+	public static KsuidFactory newMonotonicInstance(IntFunction<byte[]> randomFunction, Supplier<Instant> clock) {
+		return new KsuidFactory(new MonotonicFunction(IRandom.newInstance(randomFunction)), clock);
 	}
 
 	/**
@@ -274,7 +313,7 @@ public final class KsuidFactory {
 	 * @return a KSUID
 	 */
 	public synchronized Ksuid create() {
-		return ksuidFunction.apply(clock.instant());
+		return ksuidFunction.apply(clock.get());
 	}
 
 	/**
