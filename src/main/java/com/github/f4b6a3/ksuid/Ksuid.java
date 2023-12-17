@@ -27,6 +27,7 @@ package com.github.f4b6a3.ksuid;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.SplittableRandom;
 
 /**
@@ -75,20 +76,19 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 
 	static final int BASE62_RADIX = 62;
 	static final char[] BASE62_ALPHABET;
-	static final int[] BASE62_MAP;
+	static final byte[] BASE62_MAP;
 
 	static {
 
 		BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
-		BASE62_MAP = new int[128];
+		BASE62_MAP = new byte[256];
 
 		// initialize the map with -1
-		for (int i = 0; i < BASE62_MAP.length; i++) {
-			BASE62_MAP[i] = -1;
-		}
+		Arrays.fill(BASE62_MAP, (byte) -1);
+
 		// map the alphabets chars to values
 		for (int i = 0; i < BASE62_ALPHABET.length; i++) {
-			BASE62_MAP[BASE62_ALPHABET[i]] = i;
+			BASE62_MAP[BASE62_ALPHABET[i]] = (byte) i;
 		}
 	}
 
@@ -182,7 +182,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 * This static method is a quick alternative to {@link KsuidCreator#getKsuid()}.
 	 * <p>
 	 * It employs {@link SplittableRandom} which works very well, although not
-	 * cryptographically strong.
+	 * cryptographically strong. It can be useful, for example, for logging.
 	 * <p>
 	 * Security-sensitive applications that require a cryptographically secure
 	 * pseudo-random generator should use {@link KsuidCreator#getKsuid()}.
