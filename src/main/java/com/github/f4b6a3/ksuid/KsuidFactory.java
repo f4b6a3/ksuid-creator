@@ -122,39 +122,6 @@ public final class KsuidFactory {
 	}
 
 	/**
-	 * Returns a new Segment's KSUID factory.
-	 * 
-	 * @param random          a {@link Random} generator
-	 * @param instantFunction an {@link Instant} supplier
-	 * @return {@link KsuidFactory}
-	 */
-	public static KsuidFactory newInstance(Random random, Supplier<Instant> instantFunction) {
-		return new KsuidFactory(new KsuidFunction(IRandom.newInstance(random)), instantFunction);
-	}
-
-	/**
-	 * Returns a new Segment's KSUID factory.
-	 *
-	 * @param randomFunction  a random function that returns a long value
-	 * @param instantFunction an {@link Instant} supplier
-	 * @return {@link KsuidFactory}
-	 */
-	public static KsuidFactory newInstance(LongSupplier randomFunction, Supplier<Instant> instantFunction) {
-		return new KsuidFactory(new KsuidFunction(IRandom.newInstance(randomFunction)), instantFunction);
-	}
-
-	/**
-	 * Returns a new Segment's KSUID factory.
-	 *
-	 * @param randomFunction  a random function that returns a byte array
-	 * @param instantFunction an {@link Instant} supplier
-	 * @return {@link KsuidFactory}
-	 */
-	public static KsuidFactory newInstance(IntFunction<byte[]> randomFunction, Supplier<Instant> instantFunction) {
-		return new KsuidFactory(new KsuidFunction(IRandom.newInstance(randomFunction)), instantFunction);
-	}
-
-	/**
 	 * Returns a new Sub-second KSUID factory.
 	 * 
 	 * @return {@link KsuidFactory}
