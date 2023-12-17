@@ -15,9 +15,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SplittableRandom;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 public class KsuidFactoryTest {
 
@@ -53,7 +55,7 @@ public class KsuidFactoryTest {
 		assertTrue(checkUniqueness(list));
 		assertTrue(checkCreationTime(list, startTime, endTime));
 	}
-	
+
 	@Test
 	public void testGetFastKsuid() {
 		Ksuid[] list = new Ksuid[DEFAULT_LOOP_MAX];
@@ -338,26 +340,10 @@ public class KsuidFactoryTest {
 		long time = Instant.parse("2021-12-31T23:59:59.000Z").getEpochSecond();
 		long times[] = { time, time + 0, time + 1, time + 2, time + 3 - diff, time + 4 - diff, time + 5 };
 
-		Clock clock = new Clock() {
-			private int i;
+		AtomicInteger i = new AtomicInteger();
+		Supplier<Instant> instantFunction = () -> Instant.ofEpochSecond(times[i.getAndIncrement() % times.length]);
 
-			@Override
-			public Instant instant() {
-				return Instant.ofEpochSecond(times[i++ % times.length]);
-			}
-
-			@Override
-			public ZoneId getZone() {
-				return null;
-			}
-
-			@Override
-			public Clock withZone(ZoneId zone) {
-				return null;
-			}
-		};
-
-		KsuidFactory factory = KsuidFactory.newMonotonicInstance(() -> new Random().nextLong(), clock);
+		KsuidFactory factory = KsuidFactory.newMonotonicInstance(() -> new Random().nextLong(), instantFunction);
 
 		long ms1 = factory.create().getTime(); // time
 		long ms2 = factory.create().getTime(); // time + 0
@@ -381,26 +367,10 @@ public class KsuidFactoryTest {
 		long leapSecond = second - 1; // simulate a leap second
 		long times[] = { second, leapSecond };
 
-		Clock clock = new Clock() {
-			private int i;
+		AtomicInteger i = new AtomicInteger();
+		Supplier<Instant> instantFunction = () -> Instant.ofEpochSecond(times[i.getAndIncrement() % times.length]);
 
-			@Override
-			public Instant instant() {
-				return Instant.ofEpochSecond(times[i++ % times.length]);
-			}
-
-			@Override
-			public ZoneId getZone() {
-				return null;
-			}
-
-			@Override
-			public Clock withZone(ZoneId zone) {
-				return null;
-			}
-		};
-
-		KsuidFactory factory = KsuidFactory.newMonotonicInstance(() -> new Random().nextLong(), clock);
+		KsuidFactory factory = KsuidFactory.newMonotonicInstance(() -> new Random().nextLong(), instantFunction);
 
 		long ms1 = factory.create().getTime(); // second
 		long ms2 = factory.create().getTime(); // leap second
