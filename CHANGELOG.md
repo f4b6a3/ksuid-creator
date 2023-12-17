@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 Nothing unreleaded.
 
+## [4.1.1] - 2023-12-17
+
+Adds the option to pass an Instant supplier to the public static factory methods. (by Michele Sollecito) #17
+
 ## [4.1.0] - 2022-10-22
 
 Add a fast method to generate identifiers. #16
@@ -138,7 +142,8 @@ Project created as an alternative Java implementation of [K-Sortable Unique IDen
 -   Added `DefaultRandomGenerator`
 -   Added test cases
 
-[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-4.1.0...HEAD
+[unreleased]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-4.1.1...HEAD
+[4.1.1]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-4.0.2...ksuid-creator-4.1.1
 [4.1.0]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-4.0.2...ksuid-creator-4.1.0
 [4.0.2]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-4.0.1...ksuid-creator-4.0.2
 [4.0.1]: https://github.com/f4b6a3/ksuid-creator/compare/ksuid-creator-4.0.0...ksuid-creator-4.0.1
