@@ -28,6 +28,7 @@ import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.LongSupplier;
@@ -55,6 +56,7 @@ public final class KsuidFactory {
 
 	private final Supplier<Instant> instantFunction;
 	private final Function<Instant, Ksuid> ksuidFunction;
+	private final ReentrantLock lock = new ReentrantLock();
 
 	static final int PRECISION_MILLISECOND = 1;
 	static final int PRECISION_MICROSECOND = 2;
@@ -276,8 +278,8 @@ public final class KsuidFactory {
 	 * 
 	 * @return a KSUID
 	 */
-	public synchronized Ksuid create() {
-		return ksuidFunction.apply(instantFunction.get());
+	public Ksuid create() {
+		return create(instantFunction.get());
 	}
 
 	/**
@@ -286,8 +288,13 @@ public final class KsuidFactory {
 	 * @param instant an instant
 	 * @return a KSUID
 	 */
-	public synchronized Ksuid create(final Instant instant) {
-		return ksuidFunction.apply(instant);
+	public Ksuid create(final Instant instant) {
+		lock.lock();
+		try {
+			return ksuidFunction.apply(instant);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	// ******************************
