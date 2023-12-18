@@ -49,7 +49,13 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 
 	private static final long serialVersionUID = 3045351825700035803L;
 
+	/**
+	 * The current time.
+	 */
 	private final int seconds;
+	/**
+	 * The random bytes.
+	 */
 	private final byte[] payload;
 
 	/**
@@ -188,7 +194,6 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 	 * pseudo-random generator should use {@link KsuidCreator#getKsuid()}.
 	 * 
 	 * @return a KSUID
-	 * @see {@link SplittableRandom}
 	 * @since 4.1.0
 	 */
 	public static Ksuid fast() {
