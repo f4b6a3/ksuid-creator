@@ -614,7 +614,7 @@ public final class Ksuid implements Serializable, Comparable<Ksuid> {
 			return false; // null or wrong size!
 		}
 		for (int i = 0; i < chars.length; i++) {
-			if (BASE62_MAP[chars[i]] == -1) {
+			if (chars[i] >= BASE62_MAP.length || BASE62_MAP[chars[i]] == -1) {
 				return false; // invalid character!
 			}
 		}
